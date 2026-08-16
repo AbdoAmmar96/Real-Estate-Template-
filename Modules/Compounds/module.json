@@ -1,0 +1,11 @@
+{
+    "name": "Compounds",
+    "alias": "compounds",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Compounds\\Providers\\CompoundsServiceProvider"
+    ],
+    "files": []
+}

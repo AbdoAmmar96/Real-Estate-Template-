@@ -1,0 +1,12 @@
+{
+    "Core": true,
+    "Pages": true,
+    "Locations": true,
+    "Developers": true,
+    "Compounds": true,
+    "Properties": true,
+    "Leads": true,
+    "Blog": true,
+    "Seo": true,
+    "Reviews": true
+}
