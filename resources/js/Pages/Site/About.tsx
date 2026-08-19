@@ -64,7 +64,6 @@ export default function About() {
                         {t.values.map(([title, desc, Icon]) => (
                             <div key={title as string} className="rounded-2xl border border-gray-100 bg-bg p-6">
                                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                    {/* @ts-expect-error lucide component from tuple */}
                                     <Icon size={22} />
                                 </span>
                                 <h3 className="mt-4 text-base font-extrabold text-secondary">{title as string}</h3>

@@ -13,8 +13,9 @@ Route::prefix('{locale}')
     ->group(function () {
 
         Route::get('/', fn (string $locale) => Inertia::render('Site/Home', [
-            'latestProperties' => array_slice(\App\Support\DemoContent::properties($locale), 0, 3),
-            'latestCompounds'  => array_slice(\App\Support\DemoContent::compounds($locale), 0, 2),
+            'latestProperties' => array_slice(\App\Support\DemoContent::properties($locale), 0, 6),
+            'latestCompounds'  => array_slice(\App\Support\DemoContent::compounds($locale), 0, 3),
+            'areas'            => \App\Support\DemoContent::areas($locale),
         ]))->name('home');
 
         Route::get('/properties', fn (string $locale) => Inertia::render('Site/Properties', [

@@ -32,6 +32,7 @@ export interface Property {
     baths: number;
     size: number;
     ref: string;
+    image: string;
 }
 
 export interface Compound {
@@ -43,4 +44,14 @@ export interface Compound {
     down: string;
     years: string;
     new: boolean;
+    image: string;
+}
+
+/** بطاقة منطقة في قسم "مناطق بنغطيها" بالرئيسية */
+export interface Area {
+    id: number;
+    name: string;
+    note: string;
+    count: string;
+    image: string;
 }

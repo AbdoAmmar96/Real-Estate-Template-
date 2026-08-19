@@ -42,6 +42,9 @@ class SettingsSeeder extends Seeder
                 'logo_path'    => '/images/logo.png',
                 'video_url'    => '',
                 'video_poster' => '',
+                // صور دلوقتي — بدّلها بـ /videos/hero.mp4 من الداشبورد لما ترفع الفيديوهات
+                'hero_media'    => '/images/demo/hero.jpg',
+                'process_media' => '/images/demo/process.jpg',
             ],
 
             'contact' => [

@@ -50,6 +50,8 @@ class SettingsController extends Controller
         'logo_path'     => 'مسار اللوجو (مثال: /images/logo.png)',
         'video_url'     => 'رابط الفيديو التعريفي (mp4 أو YouTube)',
         'video_poster'  => 'صورة غلاف الفيديو (اختياري)',
+        'hero_media'    => 'ميديا الهيرو — صورة أو mp4 (مثال: /videos/hero.mp4)',
+        'process_media' => 'ميديا قسم الخطوات — صورة أو mp4',
         // contact
         'whatsapp'      => 'رقم الواتساب (بكود الدولة بدون +)',
         'phone'         => 'رقم التليفون',
