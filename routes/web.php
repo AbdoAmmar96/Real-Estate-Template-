@@ -16,6 +16,7 @@ Route::prefix('{locale}')
             'latestProperties' => array_slice(\App\Support\DemoContent::properties($locale), 0, 6),
             'latestCompounds'  => array_slice(\App\Support\DemoContent::compounds($locale), 0, 3),
             'areas'            => \App\Support\DemoContent::areas($locale),
+            'searchOptions'    => \App\Support\DemoContent::searchOptions($locale),
         ]))->name('home');
 
         Route::get('/properties', fn (string $locale) => Inertia::render('Site/Properties', [

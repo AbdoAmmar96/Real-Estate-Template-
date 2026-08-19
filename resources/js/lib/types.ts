@@ -55,3 +55,10 @@ export interface Area {
     count: string;
     image: string;
 }
+
+/** خيارات البحث في الهيرو */
+export interface SearchOptions {
+    types: string[];
+    locations: string[];
+    stats: { value: string; suffix: string; label: string }[];
+}

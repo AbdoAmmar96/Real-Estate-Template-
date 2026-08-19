@@ -2,10 +2,11 @@ import { Link, usePage } from "@inertiajs/react";
 import CompoundCard from "@/Components/site/CompoundCard";
 import CountUp from "@/Components/site/CountUp";
 import FrameMedia from "@/Components/site/FrameMedia";
+import HeroSearch from "@/Components/site/HeroSearch";
 import PropertyCard from "@/Components/site/PropertyCard";
 import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { Area, Compound, Property, SharedProps } from "@/lib/types";
+import type { Area, Compound, Property, SearchOptions, SharedProps } from "@/lib/types";
 
 /**
  * Home v1.0 — منفّذة من كانفاس Claude Design "منصة إكس هومز العقارية".
@@ -55,7 +56,7 @@ const copy = {
         areasTitle: "مناطق بنغطيها بالتفصيل",
         ctaTitle: "محتار بين وحدتين؟",
         ctaSub: "ابعتلنا الاختيارات وهنرجّعلك مقارنة مكتوبة بالسعر وسعر المتر ونظام السداد وتاريخ التسليم.",
-        ctaBtn: "اطلب المقارنة",
+        ctaBtn: "تواصل معنا",
         ctaWa: "كلمنا واتساب",
     },
     en: {
@@ -99,7 +100,7 @@ const copy = {
         areasTitle: "Areas we cover in depth",
         ctaTitle: "Torn between two units?",
         ctaSub: "Send us your options and we will return a written comparison of price, price per m², payment plan and delivery date.",
-        ctaBtn: "Request the comparison",
+        ctaBtn: "Contact us",
         ctaWa: "WhatsApp us",
     },
 };
@@ -108,10 +109,12 @@ export default function Home({
     latestProperties,
     latestCompounds,
     areas,
+    searchOptions,
 }: {
     latestProperties: Property[];
     latestCompounds: Compound[];
     areas: Area[];
+    searchOptions: SearchOptions;
 }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
@@ -137,7 +140,10 @@ export default function Home({
 
     return (
         <SiteLayout>
-            {/* ---------------- الهيرو ---------------- */}
+            {/* ---------------- الهيرو الرئيسي: فيديو خلفية + بحث ---------------- */}
+            <HeroSearch options={searchOptions} />
+
+            {/* ---------------- هيرو ثانوي ---------------- */}
             <section className="bg-surface px-4 pb-20 pt-10">
                 <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
                     <Reveal>
@@ -185,7 +191,7 @@ export default function Home({
 
                     <Reveal delay={140}>
                         <div className="relative">
-                            <FrameMedia src={heroMedia} alt="" ratio="4 / 4.6" />
+                            <FrameMedia src={heroMedia} poster="/images/demo/hero.jpg" alt="" ratio="4 / 4.6" priority />
                             <div className="absolute inset-x-4 bottom-4 grid grid-cols-[1fr_1px_1fr] items-center gap-4 rounded-2xl bg-bg/90 p-4 backdrop-blur">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-xs font-bold text-muted">{t.avgLabel}</span>
@@ -290,7 +296,7 @@ export default function Home({
             <section className="bg-bg px-4 py-14">
                 <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1fr_1.05fr]">
                     <Reveal>
-                        <FrameMedia src={processMedia} alt="" ratio="5 / 4" />
+                        <FrameMedia src={processMedia} poster="/images/demo/process.jpg" alt="" ratio="5 / 4" />
                     </Reveal>
 
                     <Reveal delay={140}>

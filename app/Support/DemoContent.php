@@ -210,4 +210,26 @@ class DemoContent
             ],
         ];
     }
+
+    /** خيارات البحث في الهيرو — الأنواع والمناطق بأعدادها */
+    public static function searchOptions(string $locale): array
+    {
+        $ar = $locale === 'ar';
+
+        return [
+            'types' => $ar
+                ? ['شقق', 'فلل', 'تاون هاوس', 'توين هاوس', 'دوبلكس', 'بنتهاوس', 'تجاري', 'عيادات', 'محلات', 'مكاتب']
+                : ['Apartments', 'Villas', 'Townhouses', 'Twin houses', 'Duplexes', 'Penthouses', 'Commercial', 'Clinics', 'Shops', 'Offices'],
+
+            'locations' => $ar
+                ? ['القاهرة الجديدة', 'الشيخ زايد', 'الساحل الشمالي', 'العين السخنة', 'العاصمة الإدارية الجديدة', 'السادس من أكتوبر', 'الغردقة']
+                : ['New Cairo', 'Sheikh Zayed', 'North Coast', 'Ain Sokhna', 'New Administrative Capital', '6th of October', 'Hurghada'],
+
+            'stats' => [
+                ['value' => '6000', 'suffix' => '+', 'label' => $ar ? 'عقار' : 'properties'],
+                ['value' => '420',  'suffix' => '+', 'label' => $ar ? 'كمبوند' : 'compounds'],
+                ['value' => '161',  'suffix' => '+', 'label' => $ar ? 'مطوّر' : 'developers'],
+            ],
+        ];
+    }
 }
