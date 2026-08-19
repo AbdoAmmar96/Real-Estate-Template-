@@ -45,6 +45,8 @@ export interface Compound {
     years: string;
     new: boolean;
     image: string;
+    desc: string;
+    delivery: string;
 }
 
 /** بطاقة منطقة في قسم "مناطق بنغطيها" بالرئيسية */
@@ -61,4 +63,25 @@ export interface SearchOptions {
     types: string[];
     locations: string[];
     stats: { value: string; suffix: string; label: string }[];
+}
+
+/** محطة في الخط الزمني بصفحة "من نحن" */
+export interface Milestone {
+    year: string;
+    title: string;
+    text: string;
+}
+
+/** عضو فريق */
+export interface TeamMember {
+    name: string;
+    role: string;
+    image: string;
+}
+
+/** خيارات فورم "اتصل بنا" */
+export interface ContactOptions {
+    areas: string[];
+    budgets: string[];
+    offices: { title: string; text: string }[];
 }

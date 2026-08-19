@@ -47,11 +47,11 @@ export default function PropertyCard({ p, ar, wa }: { p: Property; ar: boolean; 
                         <Bath size={14} className="text-secondary" />
                         <span dir="ltr">{p.baths}</span>
                     </span>
-                    <span className="flex items-center gap-2">
+                    {/* الرقم والوحدة عنصرين منفصلين — لو اتلفّوا في dir="ltr" واحد بيتقلبوا في RTL */}
+                    <span className="flex items-center gap-1.5">
                         <Ruler size={14} className="text-secondary" />
-                        <span dir="ltr">
-                            {p.size} {ar ? "م²" : "m²"}
-                        </span>
+                        <span dir="ltr">{p.size}</span>
+                        <span>{ar ? "م²" : "m²"}</span>
                     </span>
                 </div>
 

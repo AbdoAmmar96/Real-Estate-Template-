@@ -1,109 +1,253 @@
 import { usePage } from "@inertiajs/react";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Building2, CheckCircle2, Clock, Mail, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
+import PageHero from "@/Components/site/PageHero";
+import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { SharedProps } from "@/lib/types";
+import type { ContactOptions, SharedProps } from "@/lib/types";
 
-/**
- * Contact v0 — الفورم بيبني رسالة واتساب جاهزة وبيفتحها (شغال فعليًا لو الرقم مضبوط
- * في الإعدادات). في المرحلة 5 بيتوصل بموديول Leads فيتسجل في الداشبورد قبل الإرسال.
- */
-export default function Contact() {
+const copy = {
+    ar: {
+        crumb: "اتصل بنا",
+        title: "اتصل بنا",
+        desc: "اكتب اللي بتدور عليه وميزانيتك، وهنرجعلك في خلال ساعتين عمل بقائمة مبدئية.",
+        formTitle: "اطلب مكالمة",
+        name: "الاسم",
+        phone: "رقم الموبايل",
+        area: "المنطقة المطلوبة",
+        budget: "الميزانية",
+        details: "تفاصيل إضافية",
+        detailsPh: "عدد الغرف، دور معيّن، استلام فوري…",
+        submit: "ابعت الطلب",
+        note: "مفيش مكالمات تسويقية. بياناتك بتفضل عندنا.",
+        sentTitle: "استلمنا طلبك",
+        sentText: "هنكلمك من رقم واحد فقط",
+        again: "ابعت طلب تاني",
+        infoPhone: "تليفون",
+        infoWa: "واتساب",
+        infoMail: "إيميل",
+        infoHours: "مواعيد العمل",
+        hours: "السبت – الخميس · 10ص – 8م",
+        offices: "مكاتبنا",
+        waCta: "كلّمنا واتساب",
+    },
+    en: {
+        crumb: "Contact",
+        title: "Contact us",
+        desc: "Tell us what you are looking for and your budget, and we will come back within two working hours with an initial shortlist.",
+        formTitle: "Request a call",
+        name: "Name",
+        phone: "Mobile number",
+        area: "Preferred area",
+        budget: "Budget",
+        details: "Extra details",
+        detailsPh: "Number of rooms, a specific floor, ready to move…",
+        submit: "Send the request",
+        note: "No marketing calls. Your data stays with us.",
+        sentTitle: "We received your request",
+        sentText: "We will call you from one number only",
+        again: "Send another request",
+        infoPhone: "Phone",
+        infoWa: "WhatsApp",
+        infoMail: "Email",
+        infoHours: "Working hours",
+        hours: "Saturday – Thursday · 10am – 8pm",
+        offices: "Our offices",
+        waCta: "WhatsApp us",
+    },
+};
+
+export default function Contact({ options }: { options: ContactOptions }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
+    const t = copy[locale] ?? copy.ar;
     const contact = settings.contact ?? {};
+    const wa = contact.whatsapp;
 
-    const [form, setForm] = useState({ name: "", phone: "", intent: "", message: "" });
-    const [error, setError] = useState("");
+    const [sent, setSent] = useState(false);
+    const [form, setForm] = useState({ name: "", phone: "", area: "", budget: "", details: "" });
 
-    const intents = ar
-        ? ["شراء عقار", "استئجار عقار", "بيع عقاري", "عرض عقاري للإيجار"]
-        : ["Buy a property", "Rent a property", "Sell my property", "List my property for rent"];
+    const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
+        setForm((f) => ({ ...f, [k]: e.target.value }));
 
+    // الفورم بيبني رسالة واتساب فعلية — في المرحلة 5 بتتحول لموديول Leads
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.name.trim() || !form.phone.trim()) {
-            setError(ar ? "اكتب اسمك ورقم موبايلك الأول" : "Enter your name and phone first");
-            return;
+        if (wa) {
+            const lines = [
+                `${t.name}: ${form.name}`,
+                `${t.phone}: ${form.phone}`,
+                `${t.area}: ${form.area}`,
+                `${t.budget}: ${form.budget}`,
+                form.details && `${t.details}: ${form.details}`,
+            ].filter(Boolean);
+            window.open(`https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
         }
-        setError("");
-
-        const lines = ar
-            ? [`الاسم: ${form.name}`, `الموبايل: ${form.phone}`, form.intent && `أرغب في: ${form.intent}`, form.message && `تفاصيل: ${form.message}`]
-            : [`Name: ${form.name}`, `Phone: ${form.phone}`, form.intent && `I want to: ${form.intent}`, form.message && `Details: ${form.message}`];
-
-        const text = encodeURIComponent(lines.filter(Boolean).join("\n"));
-
-        if (contact.whatsapp) {
-            window.open(`https://wa.me/${contact.whatsapp}?text=${text}`, "_blank");
-        } else {
-            setError(ar ? "رقم الواتساب لسه متضبطش من الداشبورد (الإعدادات → بيانات التواصل)" : "WhatsApp number not set yet (Dashboard → Contact settings)");
-        }
+        setSent(true);
     };
 
-    const input =
-        "w-full rounded-lg border border-gray-200 bg-bg px-3.5 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/25";
+    const field = "w-full rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text placeholder:font-medium placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25";
+    const label = "text-xs font-extrabold text-secondary";
+
+    const infoRow = (Icon: typeof Phone, title: string, value: string, href?: string) => (
+        <div className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon size={18} />
+            </span>
+            <div className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-bold text-muted">{title}</span>
+                {href ? (
+                    <a href={href} dir="ltr" className="text-sm font-extrabold text-secondary transition hover:text-primary">
+                        {value}
+                    </a>
+                ) : (
+                    <span className="text-sm font-extrabold text-secondary">{value}</span>
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <SiteLayout>
-            <section className="border-b border-gray-100 bg-surface">
-                <div className="mx-auto max-w-7xl px-4 py-12">
-                    <h1 className="text-3xl text-secondary md:text-4xl">{ar ? "اتصل بنا" : "Contact us"}</h1>
-                    <p className="mt-2 text-sm text-muted">
-                        {ar ? "سيب بياناتك وهيتواصل معاك مستشار مباشرة." : "Leave your details and an advisor will reach out directly."}
-                    </p>
-                </div>
-            </section>
+            <PageHero bg="/images/demo/bg-contact.jpg" crumb={t.crumb} title={t.title} desc={t.desc} />
 
-            <section className="bg-bg">
-                <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-3">
-                    <div className="flex flex-col gap-4">
-                        {contact.phone && (
-                            <div className="flex items-center gap-3 rounded-2xl border border-gray-100 p-4">
-                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Phone size={18} /></span>
-                                <span className="text-sm font-bold text-secondary" dir="ltr">{contact.phone}</span>
-                            </div>
-                        )}
-                        {contact.email && (
-                            <div className="flex items-center gap-3 rounded-2xl border border-gray-100 p-4">
-                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Mail size={18} /></span>
-                                <span className="text-sm font-bold text-secondary" dir="ltr">{contact.email}</span>
-                            </div>
-                        )}
-                        {contact.address && (
-                            <div className="flex items-center gap-3 rounded-2xl border border-gray-100 p-4">
-                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><MapPin size={18} /></span>
-                                <span className="text-sm font-bold text-secondary">{contact.address}</span>
-                            </div>
-                        )}
-                        {!contact.phone && !contact.email && !contact.address && (
-                            <p className="rounded-2xl bg-surface p-4 text-xs leading-relaxed text-muted">
-                                {ar
-                                    ? "بيانات التواصل بتظهر هنا تلقائيًا أول ما تتسجل من الداشبورد → الإعدادات → بيانات التواصل."
-                                    : "Contact details appear here automatically once set from Dashboard → Contact settings."}
-                            </p>
-                        )}
-                    </div>
+            <section className="bg-bg px-4 py-14">
+                <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-start">
+                    {/* ---------- الفورم ---------- */}
+                    <Reveal>
+                        <div className="rounded-3xl border border-gray-100 bg-bg p-6 shadow-[0_8px_30px_rgba(11,18,32,0.05)] md:p-8">
+                            {sent ? (
+                                <div className="flex flex-col items-center py-10 text-center">
+                                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10 text-success">
+                                        <CheckCircle2 size={32} />
+                                    </span>
+                                    <h2 className="mt-4 text-2xl font-extrabold text-secondary">{t.sentTitle}</h2>
+                                    <p className="mt-2 text-sm text-muted">
+                                        {t.sentText}
+                                        {contact.phone && (
+                                            <>
+                                                :{" "}
+                                                <span dir="ltr" className="font-extrabold text-secondary">
+                                                    {contact.phone}
+                                                </span>
+                                            </>
+                                        )}
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSent(false);
+                                            setForm({ name: "", phone: "", area: "", budget: "", details: "" });
+                                        }}
+                                        className="mt-6 rounded-brand border-2 border-secondary px-6 py-3 text-sm font-extrabold text-secondary transition hover:bg-secondary hover:text-white"
+                                    >
+                                        {t.again}
+                                    </button>
+                                </div>
+                            ) : (
+                                <form onSubmit={submit} className="flex flex-col gap-4">
+                                    <h2 className="text-2xl font-extrabold text-secondary">{t.formTitle}</h2>
 
-                    <form onSubmit={submit} className="rounded-2xl border border-gray-100 bg-bg p-6 shadow-sm lg:col-span-2">
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <input className={input} placeholder={ar ? "الاسم بالكامل" : "Full name"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                            <input className={input} dir="ltr" placeholder={ar ? "رقم الموبايل" : "Phone number"} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-                            <select className={`${input} sm:col-span-2`} value={form.intent} onChange={(e) => setForm({ ...form, intent: e.target.value })}>
-                                <option value="">{ar ? "أرغب في…" : "I want to…"}</option>
-                                {intents.map((i) => (
-                                    <option key={i} value={i}>{i}</option>
-                                ))}
-                            </select>
-                            <textarea className={`${input} sm:col-span-2`} rows={4} placeholder={ar ? "ملاحظات / طلبات خاصة" : "Notes / special requests"} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <label className="flex flex-col gap-2">
+                                            <span className={label}>{t.name}</span>
+                                            <input required value={form.name} onChange={set("name")} className={field} />
+                                        </label>
+                                        <label className="flex flex-col gap-2">
+                                            <span className={label}>{t.phone}</span>
+                                            <input
+                                                required
+                                                type="tel"
+                                                dir="ltr"
+                                                value={form.phone}
+                                                onChange={set("phone")}
+                                                className={field}
+                                            />
+                                        </label>
+                                        <label className="flex flex-col gap-2">
+                                            <span className={label}>{t.area}</span>
+                                            <select required value={form.area} onChange={set("area")} className={field}>
+                                                <option value="" disabled />
+                                                {options.areas.map((v) => (
+                                                    <option key={v}>{v}</option>
+                                                ))}
+                                            </select>
+                                        </label>
+                                        <label className="flex flex-col gap-2">
+                                            <span className={label}>{t.budget}</span>
+                                            <select required value={form.budget} onChange={set("budget")} className={field}>
+                                                <option value="" disabled />
+                                                {options.budgets.map((v) => (
+                                                    <option key={v}>{v}</option>
+                                                ))}
+                                            </select>
+                                        </label>
+                                    </div>
+
+                                    <label className="flex flex-col gap-2">
+                                        <span className={label}>{t.details}</span>
+                                        <textarea
+                                            rows={4}
+                                            placeholder={t.detailsPh}
+                                            value={form.details}
+                                            onChange={set("details")}
+                                            className={field}
+                                        />
+                                    </label>
+
+                                    <button
+                                        type="submit"
+                                        className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover"
+                                    >
+                                        {t.submit}
+                                    </button>
+
+                                    <p className="text-xs font-bold text-muted">{t.note}</p>
+                                </form>
+                            )}
                         </div>
+                    </Reveal>
 
-                        {error && <p className="mt-3 text-xs font-bold text-danger">{error}</p>}
+                    {/* ---------- بيانات التواصل ---------- */}
+                    <Reveal delay={130}>
+                        <div className="flex flex-col gap-6">
+                            <div className="grid gap-5 rounded-3xl border border-gray-100 bg-surface p-6 sm:grid-cols-2">
+                                {contact.phone && infoRow(Phone, t.infoPhone, contact.phone, `tel:${contact.phone}`)}
+                                {wa && infoRow(MessageCircle, t.infoWa, `+${wa}`, `https://wa.me/${wa}`)}
+                                {contact.email && infoRow(Mail, t.infoMail, contact.email, `mailto:${contact.email}`)}
+                                {infoRow(Clock, t.infoHours, t.hours)}
+                            </div>
 
-                        <button type="submit" className="mt-5 w-full rounded-brand bg-primary py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover sm:w-auto sm:px-10">
-                            {ar ? "إرسال عبر واتساب" : "Send via WhatsApp"}
-                        </button>
-                    </form>
+                            <div className="rounded-3xl border border-gray-100 bg-bg p-6">
+                                <h3 className="text-lg font-extrabold text-secondary">{t.offices}</h3>
+                                <div className="mt-4 flex flex-col gap-4">
+                                    {options.offices.map((o) => (
+                                        <div key={o.title} className="flex items-start gap-3">
+                                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                                <Building2 size={18} />
+                                            </span>
+                                            <div>
+                                                <div className="text-sm font-extrabold text-secondary">{o.title}</div>
+                                                <p className="mt-1 text-xs leading-[1.8] text-muted">{o.text}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {wa && (
+                                <a
+                                    href={`https://wa.me/${wa}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex items-center justify-center gap-2 rounded-3xl border border-primary/30 bg-primary/10 px-6 py-5 text-sm font-extrabold text-secondary transition hover:bg-primary hover:text-primary-fg"
+                                >
+                                    <MessageCircle size={17} />
+                                    {t.waCta}
+                                </a>
+                            )}
+                        </div>
+                    </Reveal>
                 </div>
             </section>
         </SiteLayout>

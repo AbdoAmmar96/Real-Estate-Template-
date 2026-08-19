@@ -27,9 +27,14 @@ Route::prefix('{locale}')
             'compounds' => \App\Support\DemoContent::compounds($locale),
         ]))->name('compounds');
 
-        Route::get('/about', fn () => Inertia::render('Site/About'))->name('about');
+        Route::get('/about', fn (string $locale) => Inertia::render('Site/About', [
+            'milestones' => \App\Support\DemoContent::milestones($locale),
+            'team'       => \App\Support\DemoContent::team($locale),
+        ]))->name('about');
 
-        Route::get('/contact', fn () => Inertia::render('Site/Contact'))->name('contact');
+        Route::get('/contact', fn (string $locale) => Inertia::render('Site/Contact', [
+            'options' => \App\Support\DemoContent::contactOptions($locale),
+        ]))->name('contact');
 
         // ← في المرحلة 4 بيانات العقارات والكمبوندات بتتبدل من DemoContent
         //   لموديلات Properties/Compounds الحقيقية بنفس الـ props بالظبط.

@@ -114,6 +114,8 @@ class DemoContent
         return [
             [
                 'id' => 1,
+                'desc' => $ar ? 'سكني متكامل على 120 فدان بلاند سكيب مفتوح ونادي اجتماعي.' : 'Integrated 120-acre community with open landscape and a social club.',
+                'delivery' => 'Q4 2027',
                 'name' => $ar ? 'النخيل هايتس' : 'Nakheel Heights',
                 'developer' => $ar ? 'شركة المروج للتطوير' : 'Al Morouj Developments',
                 'area' => $ar ? 'القاهرة الجديدة' : 'New Cairo',
@@ -125,6 +127,8 @@ class DemoContent
             ],
             [
                 'id' => 2,
+                'desc' => $ar ? 'مشروع ساحلي بلاجونز صناعية وواجهة بحرية 800 متر.' : 'Coastal project with man-made lagoons and an 800m seafront.',
+                'delivery' => 'Q2 2028',
                 'name' => $ar ? 'لاجون باي' : 'Lagoon Bay',
                 'developer' => $ar ? 'الوادي القابضة' : 'Al Wadi Holding',
                 'area' => $ar ? 'الإسكندرية' : 'Alexandria',
@@ -136,6 +140,8 @@ class DemoContent
             ],
             [
                 'id' => 3,
+                'desc' => $ar ? 'قلب الحي المالي — إداري وتجاري بعوائد إيجارية معلنة.' : 'Heart of the financial district — offices and retail with stated yields.',
+                'delivery' => 'Q1 2027',
                 'name' => $ar ? 'كابيتال سكوير' : 'Capital Square',
                 'developer' => $ar ? 'بناة المستقبل' : 'Future Builders',
                 'area' => $ar ? 'العاصمة الإدارية' : 'New Capital',
@@ -147,6 +153,8 @@ class DemoContent
             ],
             [
                 'id' => 4,
+                'desc' => $ar ? 'وحدات سكنية بمساحات صغيرة ومتوسطة قريبة من الخدمات.' : 'Small and mid-size residential units close to services.',
+                'delivery' => 'Q3 2026',
                 'name' => $ar ? 'سيلين ريزيدنس' : 'Selene Residence',
                 'developer' => $ar ? 'شركة المروج للتطوير' : 'Al Morouj Developments',
                 'area' => $ar ? 'العاصمة الإدارية' : 'New Capital',
@@ -158,6 +166,8 @@ class DemoContent
             ],
             [
                 'id' => 5,
+                'desc' => $ar ? 'واجهة بحرية مباشرة بوحدات فندقية الإدارة.' : 'Direct seafront with hotel-managed units.',
+                'delivery' => 'Q4 2026',
                 'name' => $ar ? 'مارينا ووك' : 'Marina Walk',
                 'developer' => $ar ? 'الوادي القابضة' : 'Al Wadi Holding',
                 'area' => $ar ? 'الإسكندرية' : 'Alexandria',
@@ -169,6 +179,8 @@ class DemoContent
             ],
             [
                 'id' => 6,
+                'desc' => $ar ? 'فيلات وتاون هاوس على محور مباشر بمساحات خضراء واسعة.' : 'Villas and townhouses on a direct axis with wide green areas.',
+                'delivery' => 'Q2 2029',
                 'name' => $ar ? 'جرين أفينيو' : 'Green Avenue',
                 'developer' => $ar ? 'بناة المستقبل' : 'Future Builders',
                 'area' => $ar ? 'القاهرة الجديدة' : 'New Cairo',
@@ -229,6 +241,54 @@ class DemoContent
                 ['value' => '6000', 'suffix' => '+', 'label' => $ar ? 'عقار' : 'properties'],
                 ['value' => '420',  'suffix' => '+', 'label' => $ar ? 'كمبوند' : 'compounds'],
                 ['value' => '161',  'suffix' => '+', 'label' => $ar ? 'مطوّر' : 'developers'],
+            ],
+        ];
+    }
+
+    /** محطات الشركة في صفحة "من نحن" */
+    public static function milestones(string $locale): array
+    {
+        $ar = $locale === 'ar';
+
+        return [
+            ['year' => '2014', 'title' => $ar ? 'المكتب الأول' : 'The first office', 'text' => $ar ? 'مكتب تسويق صغير في التجمع الخامس بفريق من أربعة أشخاص.' : 'A small marketing office in the Fifth Settlement with a team of four.'],
+            ['year' => '2018', 'title' => $ar ? 'أول شراكة تطوير' : 'First development partnership', 'text' => $ar ? 'اتفاقية حصرية مع مطوّر في القاهرة الجديدة على ثلاثة مشاريع.' : 'An exclusive agreement with a New Cairo developer covering three projects.'],
+            ['year' => '2021', 'title' => $ar ? 'التوسّع للعاصمة' : 'Expanding to the Capital', 'text' => $ar ? 'فرع في الحي المالي وتغطية كاملة لمشاريع العاصمة الإدارية.' : 'A branch in the financial district and full coverage of New Capital projects.'],
+            ['year' => '2024', 'title' => $ar ? 'المنصة الرقمية' : 'The digital platform', 'text' => $ar ? 'إطلاق المنصة ببيانات سعر وسداد وتسليم موثّقة لكل وحدة.' : 'Launching the platform with verified price, payment and delivery data per unit.'],
+        ];
+    }
+
+    /** فريق العمل في صفحة "من نحن" */
+    public static function team(string $locale): array
+    {
+        $ar = $locale === 'ar';
+
+        return [
+            ['name' => $ar ? 'أحمد شلبي' : 'Ahmed Shalaby', 'role' => $ar ? 'الرئيس التنفيذي' : 'Chief Executive', 'image' => '/images/demo/team-1.jpg'],
+            ['name' => $ar ? 'منى عبد العزيز' : 'Mona Abdelaziz', 'role' => $ar ? 'مدير المبيعات' : 'Head of Sales', 'image' => '/images/demo/team-2.jpg'],
+            ['name' => $ar ? 'كريم فتحي' : 'Karim Fathy', 'role' => $ar ? 'مسؤول علاقات المطوّرين' : 'Developer Relations', 'image' => '/images/demo/team-3.jpg'],
+            ['name' => $ar ? 'سارة منصور' : 'Sara Mansour', 'role' => $ar ? 'ما بعد البيع' : 'After-sales', 'image' => '/images/demo/team-4.jpg'],
+        ];
+    }
+
+    /** خيارات فورم "اتصل بنا" */
+    public static function contactOptions(string $locale): array
+    {
+        $ar = $locale === 'ar';
+
+        return [
+            'areas' => $ar
+                ? ['القاهرة الجديدة', 'العاصمة الإدارية', 'الإسكندرية', 'الساحل الشمالي', 'الشيخ زايد']
+                : ['New Cairo', 'New Capital', 'Alexandria', 'North Coast', 'Sheikh Zayed'],
+
+            'budgets' => $ar
+                ? ['أقل من 3 مليون', '3 – 6 مليون', '6 – 12 مليون', 'أكثر من 12 مليون']
+                : ['Under 3M', '3 – 6M', '6 – 12M', 'Over 12M'],
+
+            'offices' => [
+                ['title' => $ar ? 'المقر الرئيسي' : 'Head office', 'text' => $ar ? 'التجمع الخامس، شارع التسعين الشمالي، مبنى B14 — الدور الرابع' : 'Fifth Settlement, North 90th St., Building B14 — 4th floor'],
+                ['title' => $ar ? 'فرع العاصمة' : 'Capital branch', 'text' => $ar ? 'الحي المالي، برج T7' : 'Financial district, Tower T7'],
+                ['title' => $ar ? 'فرع الإسكندرية' : 'Alexandria branch', 'text' => $ar ? 'سموحة، طريق الحرية' : 'Smouha, Horreya Road'],
             ],
         ];
     }
