@@ -125,7 +125,7 @@ export default function Home({
     return (
         <SiteLayout>
             {/* ---------------- الهيرو الرئيسي: فيديو خلفية + بحث ---------------- */}
-            <HeroSearch options={searchOptions} />
+            <HeroSearch options={searchOptions} variant={settings.theme?.hero_variant ?? "video"} />
 
             {/* ---------------- هيرو ثانوي ---------------- */}
             <section className="bg-surface px-4 pb-20 pt-10">

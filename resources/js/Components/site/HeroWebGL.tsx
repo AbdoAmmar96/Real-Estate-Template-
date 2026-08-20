@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
 /**
- * HeroWebGL — variant: webgl (نسخة فاتحة).
- * شادر WebGL خام (بدون three.js) بيرسم بقع ضوئية ذهبي/كحلي بتتحرك ببطء فوق خلفية فاتحة.
+ * HeroWebGL — خلفية الهيرو لما نمط الهيرو = webgl.
+ * شادر WebGL خام (بدون three.js) بيرسم بقع ضوئية ذهبي/كحلي بتتحرك ببطء فوق الخلفية الداكنة.
  * - بيقرأ الألوان من CSS variables ⇒ بيتبع الثيم من الداشبورد تلقائيًا
  * - prefers-reduced-motion ⇒ فريم ثابت واحد
  * - DPR cap 1.5 + إيقاف الرندر لما السكشن يخرج من الشاشة أو التاب يتخفي
@@ -36,9 +36,9 @@ void main() {
     c3.x *= u_res.x / u_res.y;
 
     vec3 col = u_base;
-    col = mix(col, u_gold, blob(uv, c1, 0.55) * 0.20);
-    col = mix(col, u_navy, blob(uv, c2, 0.60) * 0.10);
-    col = mix(col, u_gold, blob(uv, c3, 0.45) * 0.12);
+    col = mix(col, u_gold, blob(uv, c1, 0.55) * 0.30);
+    col = mix(col, u_navy, blob(uv, c2, 0.60) * 0.45);
+    col = mix(col, u_gold, blob(uv, c3, 0.45) * 0.16);
 
     gl_FragColor = vec4(col, 1.0);
 }`;
@@ -122,7 +122,7 @@ export default function HeroWebGL() {
 
         const uRes = gl.getUniformLocation(prog, "u_res");
         const uTime = gl.getUniformLocation(prog, "u_time");
-        gl.uniform3fv(gl.getUniformLocation(prog, "u_base"), cssColor("--surface", [0.973, 0.98, 0.988]));
+        gl.uniform3fv(gl.getUniformLocation(prog, "u_base"), cssColor("--bg-dark", [0.043, 0.071, 0.125]));
         gl.uniform3fv(gl.getUniformLocation(prog, "u_gold"), cssColor("--primary", [0.788, 0.635, 0.153]));
         gl.uniform3fv(gl.getUniformLocation(prog, "u_navy"), cssColor("--secondary", [0.118, 0.227, 0.373]));
 

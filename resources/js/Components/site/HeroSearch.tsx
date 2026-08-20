@@ -2,6 +2,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { Headset, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CountUp from "@/Components/site/CountUp";
+import { lazy, Suspense } from "react";
 import type { SearchOptions, SharedProps } from "@/lib/types";
 
 /**
@@ -53,7 +54,9 @@ const copy = {
     },
 };
 
-export default function HeroSearch({ options }: { options: SearchOptions }) {
+const HeroWebGL = lazy(() => import("@/Components/site/HeroWebGL"));
+
+export default function HeroSearch({ options, variant = "video" }: { options: SearchOptions; variant?: string }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const t = copy[locale] ?? copy.ar;
     const wa = settings.contact?.whatsapp;
@@ -109,10 +112,17 @@ export default function HeroSearch({ options }: { options: SearchOptions }) {
 
     return (
         <section ref={box} className="relative isolate overflow-hidden">
-            {/* ----- الخلفية: صورة فورًا ثم الفيديو ----- */}
+            {/* ----- الخلفية: بتتحدد من إعداد "نمط الهيرو" في الهوية والألوان ----- */}
             <div className="absolute inset-0 -z-10">
-                <img src={poster} alt="" fetchPriority="high" className="h-full w-full object-cover" />
-                {video && playVideo && (
+                <img
+                    src={poster}
+                    alt=""
+                    fetchPriority={variant === "webgl" ? "low" : "high"}
+                    className="h-full w-full object-cover"
+                />
+
+                {/* video: الفيديو بيتحمّل كسول فوق الصورة · static: الصورة بس */}
+                {variant === "video" && video && playVideo && (
                     <video
                         src={video}
                         poster={poster}
@@ -123,8 +133,23 @@ export default function HeroSearch({ options }: { options: SearchOptions }) {
                         className="absolute inset-0 h-full w-full object-cover"
                     />
                 )}
-                {/* تعتيم بلون الهوية عشان النص يفضل مقروء */}
-                <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/85 via-bg-dark/70 to-bg-dark/90" />
+
+                {/* webgl: شادر بيقرا ألوانه من توكنز الثيم */}
+                {variant === "webgl" && (
+                    <Suspense fallback={null}>
+                        <HeroWebGL />
+                    </Suspense>
+                )}
+                {/* تعتيم بلون الهوية عشان النص يفضل مقروء.
+                    مع الشادر بيبقى أخف — هو أصلًا بيرسم على الخلفية الداكنة،
+                    فالتعتيم الكامل كان بيمسح اللي رسمه */}
+                <div
+                    className={
+                        variant === "webgl"
+                            ? "absolute inset-0 bg-gradient-to-b from-bg-dark/35 via-transparent to-bg-dark/55"
+                            : "absolute inset-0 bg-gradient-to-b from-bg-dark/85 via-bg-dark/70 to-bg-dark/90"
+                    }
+                />
             </div>
 
             <div className="mx-auto max-w-7xl px-4 pb-14 pt-20 md:pt-28">
