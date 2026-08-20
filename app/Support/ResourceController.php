@@ -14,7 +14,7 @@ use Inertia\Response;
  * الشاشتين (Index / Form) في React عامّتين وبيتبنوا من الـ schema اللي هنا،
  * فإضافة موديول جديد = كلاس صغير + راوت، من غير أي صفحة جديدة.
  *
- * أنواع الحقول المدعومة: text · number · textarea · select · toggle · image
+ * أنواع الحقول المدعومة: text · number · password · textarea · select · toggle · image
  */
 abstract class ResourceController extends Controller
 {
@@ -45,6 +45,36 @@ abstract class ResourceController extends Controller
         return [];
     }
 
+    /** عمود الترتيب — null لو الجدول مفيهوش واحد (زي users) */
+    protected function orderColumn(): ?string
+    {
+        return 'sort';
+    }
+
+    /** قواعد تحقق تغلب المتولّدة من الـ schema — $id بيبقى null وقت الإنشاء */
+    protected function rules(?int $id): array
+    {
+        return [];
+    }
+
+    /** تعديل القيم قبل الحفظ — لتنضيف حقول مش أعمدة في الجدول مثلًا */
+    protected function transform(array $data, ?Model $model): array
+    {
+        return $data;
+    }
+
+    /** بعد الحفظ — للعلاقات (أدوار، تاجات…) */
+    protected function afterSave(Model $model, array $data): void
+    {
+        //
+    }
+
+    /** رسالة تمنع الحذف، أو null لو مسموح */
+    protected function guardDelete(Model $model): ?string
+    {
+        return null;
+    }
+
     public function index(Request $request): Response
     {
         $query = $this->modelClass()::query()->with($this->with());
@@ -57,7 +87,11 @@ abstract class ResourceController extends Controller
             });
         }
 
-        $rows = $query->orderBy('sort')->orderByDesc('id')->paginate(15)->withQueryString();
+        if ($order = $this->orderColumn()) {
+            $query->orderBy($order);
+        }
+
+        $rows = $query->orderByDesc('id')->paginate(15)->withQueryString();
 
         // نحوّل كل صف لمصفوفة مسطّحة عشان الجدول يعرض قيم العلاقات كمان
         $rows->getCollection()->transform(fn (Model $row) => $this->rowPayload($row));
@@ -82,13 +116,16 @@ abstract class ResourceController extends Controller
 
         return Inertia::render('Admin/Resource/Form', [
             'resource' => $this->schema(),
-            'item' => $item->only(array_column($this->fields(), 'name') + ['id' => 'id']) + ['id' => $item->id],
+            'item' => $this->itemPayload($item),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $this->modelClass()::create($this->validated($request));
+        $data = $this->validated($request, null);
+
+        $model = $this->modelClass()::create($this->transform($data, null));
+        $this->afterSave($model, $data);
 
         return redirect()
             ->route("admin.{$this->key()}.index")
@@ -97,7 +134,11 @@ abstract class ResourceController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->modelClass()::findOrFail($id)->update($this->validated($request));
+        $model = $this->modelClass()::findOrFail($id);
+        $data = $this->validated($request, $id);
+
+        $model->update($this->transform($data, $model));
+        $this->afterSave($model, $data);
 
         return redirect()
             ->route("admin.{$this->key()}.index")
@@ -106,7 +147,13 @@ abstract class ResourceController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        $this->modelClass()::findOrFail($id)->delete();
+        $model = $this->modelClass()::findOrFail($id);
+
+        if ($reason = $this->guardDelete($model)) {
+            return back()->with('error', $reason);
+        }
+
+        $model->delete();
 
         return redirect()
             ->route("admin.{$this->key()}.index")
@@ -141,7 +188,19 @@ abstract class ResourceController extends Controller
         return $data;
     }
 
-    protected function validated(Request $request): array
+    /** قيم الفورم عند التعديل */
+    protected function itemPayload(Model $model): array
+    {
+        $data = ['id' => $model->id];
+
+        foreach ($this->fields() as $field) {
+            $data[$field['name']] = $model->{$field['name']};
+        }
+
+        return $data;
+    }
+
+    protected function validated(Request $request, ?int $id = null): array
     {
         $rules = [];
 
@@ -160,6 +219,9 @@ abstract class ResourceController extends Controller
 
             $rules[$f['name']] = $rule;
         }
+
+        // قواعد الكنترولر تغلب المتولّدة (unique، confirmed، إلخ)
+        $rules = array_replace($rules, $this->rules($id));
 
         $data = $request->validate($rules);
 

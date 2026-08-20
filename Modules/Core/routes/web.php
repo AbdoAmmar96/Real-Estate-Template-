@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Core\Http\Controllers\AuthController;
 use Modules\Core\Http\Controllers\DashboardController;
 use Modules\Core\Http\Controllers\SettingsController;
+use Modules\Core\Http\Controllers\UserAdminController;
 
 /*
  |----------------------------------------------------------------------
@@ -26,6 +27,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('settings/{group}', [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
+
+        // إدارة مستخدمي اللوحة (إضافة/حذف حساب وتغيير كلمة المرور والدور)
+        Route::get('users',           [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('users/create',    [UserAdminController::class, 'create'])->name('users.create');
+        Route::post('users',          [UserAdminController::class, 'store'])->name('users.store');
+        Route::get('users/{id}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
+        Route::put('users/{id}',      [UserAdminController::class, 'update'])->name('users.update');
+        Route::delete('users/{id}',   [UserAdminController::class, 'destroy'])->name('users.destroy');
 
         Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
     });

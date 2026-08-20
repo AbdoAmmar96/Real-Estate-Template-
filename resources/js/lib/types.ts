@@ -92,7 +92,7 @@ export interface ContactOptions {
 export interface ResourceField {
     name: string;
     label: string;
-    type: "text" | "number" | "textarea" | "select" | "toggle" | "image";
+    type: "text" | "number" | "password" | "textarea" | "select" | "toggle" | "image";
     hint?: string;
     required?: boolean;
     options?: { value: string; label: string }[];

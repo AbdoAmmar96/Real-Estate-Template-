@@ -1,5 +1,6 @@
 import { Link, useForm } from "@inertiajs/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { Button, Card, Field, Input } from "@/Components/admin/ui";
 import AdminLayout from "@/Layouts/AdminLayout";
 import type { ResourceField, ResourceSchema } from "@/lib/types";
@@ -24,6 +25,7 @@ export default function ResourceForm({
     }
 
     const { data, setData, post, put, processing, errors } = useForm<Values>(initial);
+    const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,6 +51,31 @@ export default function ResourceForm({
                         }`}
                     />
                 </button>
+            );
+        }
+
+        if (f.type === "password") {
+            const shown = revealed[f.name] ?? false;
+
+            // جزيرة LTR كاملة: كده pe-11 و end-0 يبقوا على اليمين مع نص الباسورد الإنجليزي
+            return (
+                <div dir="ltr" className="relative">
+                    <Input
+                        type={shown ? "text" : "password"}
+                        value={String(value ?? "")}
+                        onChange={(e) => setData(f.name, e.target.value)}
+                        autoComplete="new-password"
+                        className="pe-11"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setRevealed((r) => ({ ...r, [f.name]: !shown }))}
+                        className="absolute inset-y-0 end-0 flex items-center px-3 text-gray-400 transition hover:text-secondary"
+                        aria-label={shown ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                    >
+                        {shown ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                </div>
             );
         }
 
