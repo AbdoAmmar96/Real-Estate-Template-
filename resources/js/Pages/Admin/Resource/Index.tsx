@@ -7,6 +7,20 @@ import type { Paginated, ResourceSchema } from "@/lib/types";
 
 type Row = { id: number } & Record<string, unknown>;
 
+/** الكنترولر يقدر يرجّع {label, tone} بدل نص عادي فيتحوّل لشارة ملوّنة */
+type Chip = { label: string; tone: keyof typeof toneStyles };
+
+const toneStyles = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-success/10 text-success",
+    warn: "bg-amber-100 text-amber-700",
+    muted: "bg-gray-100 text-gray-500",
+    danger: "bg-danger/10 text-danger",
+};
+
+const isChip = (v: unknown): v is Chip =>
+    typeof v === "object" && v !== null && "label" in v && "tone" in v;
+
 /**
  * شاشة قائمة عامة لأي ريسورس — بتتبني من schema الكنترولر،
  * فمفيش صفحة مخصوصة لكل موديول.
@@ -36,6 +50,18 @@ export default function ResourceIndex({
                 );
             }
 
+            if (isChip(v)) {
+                return (
+                    <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold ${
+                            toneStyles[v.tone] ?? toneStyles.muted
+                        }`}
+                    >
+                        {v.label}
+                    </span>
+                );
+            }
+
             if (typeof v === "boolean") {
                 return v ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-extrabold text-success">
@@ -51,7 +77,14 @@ export default function ResourceIndex({
             if (key === "purpose") return v === "rent" ? "إيجار" : "بيع";
 
             const text = v === null || v === undefined || v === "" ? "—" : String(v);
-            return <span className="line-clamp-1">{text}</span>;
+
+            // dir="auto" بيخلّي القيم الرقمية (تواريخ/أرقام موبايل) تتعرض LTR
+            // والنص العربي يفضل RTL — من غير ما الجدول يعرف نوع العمود
+            return (
+                <span dir="auto" className="line-clamp-1">
+                    {text}
+                </span>
+            );
         },
     }));
 

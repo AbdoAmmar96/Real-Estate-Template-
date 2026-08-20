@@ -1,4 +1,4 @@
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { Building2, CheckCircle2, ChevronDown, Clock, Mail, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import PageHero from "@/Components/site/PageHero";
@@ -19,6 +19,7 @@ const copy = {
         details: "تفاصيل إضافية",
         detailsPh: "عدد الغرف، دور معيّن، استلام فوري…",
         submit: "ابعت الطلب",
+        sending: "جارٍ الإرسال…",
         note: "مفيش مكالمات تسويقية. بياناتك بتفضل عندنا.",
         sentTitle: "استلمنا طلبك",
         sentText: "هنكلمك من رقم واحد فقط",
@@ -47,6 +48,7 @@ const copy = {
         details: "Extra details",
         detailsPh: "Number of rooms, a specific floor, ready to move…",
         submit: "Send the request",
+        sending: "Sending…",
         note: "No marketing calls. Your data stays with us.",
         sentTitle: "We received your request",
         sentText: "We will call you from one number only",
@@ -73,26 +75,41 @@ export default function Contact({ options }: { options: ContactOptions }) {
     const wa = contact.whatsapp;
 
     const [sent, setSent] = useState(false);
+    const [sending, setSending] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [form, setForm] = useState({ name: "", phone: "", area: "", budget: "", details: "" });
 
     const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
         setForm((f) => ({ ...f, [k]: e.target.value }));
 
-    // الفورم بيبني رسالة واتساب فعلية — في المرحلة 5 بتتحول لموديول Leads
+    // الطلب بيتسجّل في اللوحة الأول (موديول Leads) وبعدين بيفتح واتساب،
+    // فالليد موجود عندنا حتى لو العميل مكمّلش المحادثة.
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (wa) {
-            const lines = [
-                `${t.name}: ${form.name}`,
-                `${t.phone}: ${form.phone}`,
-                `${t.area}: ${form.area}`,
-                `${t.budget}: ${form.budget}`,
-                form.details && `${t.details}: ${form.details}`,
-            ].filter(Boolean);
-            window.open(`https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
-        }
-        setSent(true);
+        setSending(true);
+
+        router.post(
+            `/${locale}/leads`,
+            { ...form, message: form.details, source: "contact" },
+            {
+                preserveScroll: true,
+                onFinish: () => setSending(false),
+                onSuccess: () => {
+                    if (wa) {
+                        const lines = [
+                            `${t.name}: ${form.name}`,
+                            `${t.phone}: ${form.phone}`,
+                            `${t.area}: ${form.area}`,
+                            `${t.budget}: ${form.budget}`,
+                            form.details && `${t.details}: ${form.details}`,
+                        ].filter(Boolean);
+                        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+                    }
+
+                    setSent(true);
+                },
+            },
+        );
     };
 
     const field = "w-full rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text placeholder:font-medium placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25";
@@ -206,9 +223,10 @@ export default function Contact({ options }: { options: ContactOptions }) {
 
                                     <button
                                         type="submit"
-                                        className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover"
+                                        disabled={sending}
+                                        className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover disabled:opacity-60"
                                     >
-                                        {t.submit}
+                                        {sending ? t.sending : t.submit}
                                     </button>
 
                                     <p className="text-xs font-bold text-muted">{t.note}</p>

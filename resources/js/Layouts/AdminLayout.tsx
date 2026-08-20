@@ -1,15 +1,19 @@
 import { Link, usePage } from "@inertiajs/react";
 import {
+    Briefcase,
     Building2,
     Home,
     Image as ImageIcon,
+    Inbox,
     LayoutDashboard,
     LogOut,
     MapPin,
+    Newspaper,
     Palette,
+    Phone,
     Settings,
     Share2,
-    Users,
+    UserCog,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { FlashBanner } from "@/Components/admin/ui";
@@ -19,20 +23,22 @@ const settingsNav = [
     { href: "/admin/settings/general", label: "عام", icon: Settings },
     { href: "/admin/settings/theme", label: "الهوية والألوان", icon: Palette },
     { href: "/admin/settings/branding", label: "اللوجو والميديا", icon: ImageIcon },
-    { href: "/admin/settings/contact", label: "بيانات التواصل", icon: Users },
+    { href: "/admin/settings/contact", label: "بيانات التواصل", icon: Phone },
     { href: "/admin/settings/social", label: "السوشيال ميديا", icon: Share2 },
 ];
 
-// موديولات الدومين الشغالة
+// موديولات الدومين
 const moduleNav = [
     { href: "/admin/properties", label: "العقارات", icon: Building2 },
     { href: "/admin/compounds", label: "الكمبوندات", icon: Building2 },
-    { href: "/admin/developers", label: "المطوّرون", icon: Users },
+    { href: "/admin/developers", label: "المطوّرون", icon: Briefcase },
     { href: "/admin/locations", label: "المناطق", icon: MapPin },
+    { href: "/admin/leads", label: "الطلبات", icon: Inbox },
+    { href: "/admin/posts", label: "المدونة", icon: Newspaper },
 ];
 
-// لسه في الطريق
-const comingSoon = ["الليدز", "المدونة"];
+// إدارة النظام
+const systemNav = [{ href: "/admin/users", label: "المستخدمون", icon: UserCog }];
 
 export default function AdminLayout({ title, children }: { title: string; children: ReactNode }) {
     const { auth } = usePage<SharedProps>().props;
@@ -72,17 +78,8 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">الموديولات</div>
                     {moduleNav.map((m) => item(m.href, m.label, m.icon, path.startsWith(m.href)))}
 
-                    <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">قريبًا</div>
-                    {comingSoon.map((label) => (
-                        <span
-                            key={label}
-                            className="flex cursor-not-allowed items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-600"
-                        >
-                            <Building2 size={17} />
-                            {label}
-                            <span className="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px]">قريبًا</span>
-                        </span>
-                    ))}
+                    <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">النظام</div>
+                    {systemNav.map((s) => item(s.href, s.label, s.icon, path.startsWith(s.href)))}
                 </nav>
 
                 <div className="mt-4 shrink-0 border-t border-white/10 pt-4">

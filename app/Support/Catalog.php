@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Modules\Blog\Models\Post;
 use Modules\Compounds\Models\Compound;
 use Modules\Locations\Models\Location;
 use Modules\Properties\Models\Property;
@@ -70,6 +71,25 @@ class Catalog
         return $rows->map(fn (Location $l) => $l->toCard($locale) + [
             'count' => $l->properties_count.' '.($ar ? 'وحدة' : 'units'),
         ])->all();
+    }
+
+    /** مقالات المدونة المنشورة */
+    public static function posts(string $locale, ?int $limit = null): array
+    {
+        $rows = Post::published()
+            ->orderBy('sort')
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->when($limit, fn ($q) => $q->limit($limit))
+            ->get();
+
+        return $rows->map(fn (Post $p) => $p->toCard($locale))->all();
+    }
+
+    /** مقال واحد بالرابط — null لو مش موجود أو مش منشور */
+    public static function post(string $locale, string $slug): ?array
+    {
+        return Post::published()->where('slug', $slug)->first()?->toArticle($locale);
     }
 
     /** خيارات البحث في الهيرو — الأنواع ثابتة والمناطق من الجدول */

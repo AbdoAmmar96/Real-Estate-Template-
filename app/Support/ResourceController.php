@@ -14,7 +14,7 @@ use Inertia\Response;
  * الشاشتين (Index / Form) في React عامّتين وبيتبنوا من الـ schema اللي هنا،
  * فإضافة موديول جديد = كلاس صغير + راوت، من غير أي صفحة جديدة.
  *
- * أنواع الحقول المدعومة: text · number · password · textarea · select · toggle · image
+ * أنواع الحقول المدعومة: text · number · password · date · textarea · select · toggle · image
  */
 abstract class ResourceController extends Controller
 {
@@ -210,10 +210,11 @@ abstract class ResourceController extends Controller
             $rule[] = match ($f['type'] ?? 'text') {
                 'number' => 'integer',
                 'toggle' => 'boolean',
+                'date' => 'date',
                 default => 'string',
             };
 
-            if (($f['type'] ?? '') !== 'toggle' && ($f['type'] ?? '') !== 'number') {
+            if (! in_array($f['type'] ?? 'text', ['toggle', 'number', 'date'], true)) {
                 $rule[] = 'max:2000';
             }
 
@@ -223,7 +224,14 @@ abstract class ResourceController extends Controller
         // قواعد الكنترولر تغلب المتولّدة (unique، confirmed، إلخ)
         $rules = array_replace($rules, $this->rules($id));
 
-        $data = $request->validate($rules);
+        // أسماء الحقول في رسائل الخطأ بتيجي من labels بتاعة الـ schema
+        $attributes = [];
+
+        foreach ($this->fields() as $f) {
+            $attributes[$f['name']] = $f['label'];
+        }
+
+        $data = $request->validate($rules, [], $attributes);
 
         // التوجل بيوصل string من الفورم أحيانًا
         foreach ($this->fields() as $f) {

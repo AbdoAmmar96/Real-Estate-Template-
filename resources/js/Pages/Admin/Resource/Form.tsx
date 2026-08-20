@@ -129,6 +129,17 @@ export default function ResourceForm({
             );
         }
 
+        if (f.type === "date") {
+            return (
+                <Input
+                    type="date"
+                    value={String(value ?? "")}
+                    onChange={(e) => setData(f.name, e.target.value)}
+                    dir="ltr"
+                />
+            );
+        }
+
         return (
             <Input
                 type={f.type === "number" ? "number" : "text"}

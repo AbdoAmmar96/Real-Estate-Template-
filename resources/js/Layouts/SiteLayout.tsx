@@ -8,6 +8,7 @@ const navItems = [
     { path: "", ar: "الرئيسية", en: "Home" },
     { path: "/properties", ar: "العقارات", en: "Properties" },
     { path: "/compounds", ar: "الكمبوندات", en: "Compounds" },
+    { path: "/blog", ar: "المدونة", en: "Blog" },
     { path: "/about", ar: "من نحن", en: "About" },
     { path: "/contact", ar: "اتصل بنا", en: "Contact" },
 ];

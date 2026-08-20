@@ -51,7 +51,9 @@ class UserAdminController extends ResourceController
             ['name' => 'name', 'label' => 'الاسم', 'type' => 'text', 'required' => true],
             ['name' => 'email', 'label' => 'الإيميل', 'type' => 'text', 'required' => true,
                 'hint' => 'ده اللي بيسجّل بيه الدخول — لازم يكون مش مكرّر'],
-            ['name' => 'role', 'label' => 'الدور', 'type' => 'select', 'required' => true, 'options' => array_map(
+            ['name' => 'role', 'label' => 'الدور', 'type' => 'select', 'required' => true,
+                'hint' => 'دلوقتي «مدير» بس هو اللي بيفتح اللوحة — الأدوار التانية متسجّلة استعدادًا للصلاحيات التفصيلية.',
+                'options' => array_map(
                 fn ($label, $value) => ['value' => $value, 'label' => $label],
                 array_values(self::ROLES),
                 array_keys(self::ROLES),

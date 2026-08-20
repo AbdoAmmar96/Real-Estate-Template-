@@ -58,6 +58,25 @@ export interface Area {
     image: string;
 }
 
+/** كارت مقال في المدونة */
+export interface BlogPost {
+    id: number;
+    title: string;
+    slug: string;
+    category: string;
+    excerpt: string;
+    image: string;
+    author: string;
+    date: string;
+    /** وقت القراءة بالدقايق */
+    read: number;
+}
+
+/** المقال كامل بصفحة العرض */
+export interface BlogArticle extends BlogPost {
+    body: string;
+}
+
 /** خيارات البحث في الهيرو */
 export interface SearchOptions {
     types: string[];
@@ -92,7 +111,7 @@ export interface ContactOptions {
 export interface ResourceField {
     name: string;
     label: string;
-    type: "text" | "number" | "password" | "textarea" | "select" | "toggle" | "image";
+    type: "text" | "number" | "password" | "date" | "textarea" | "select" | "toggle" | "image";
     hint?: string;
     required?: boolean;
     options?: { value: string; label: string }[];

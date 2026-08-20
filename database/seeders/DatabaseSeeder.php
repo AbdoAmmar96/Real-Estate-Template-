@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CoreDatabaseSeeder::class,
             CatalogSeeder::class,
+            BlogSeeder::class,
+            LeadSeeder::class,
         ]);
     }
 }

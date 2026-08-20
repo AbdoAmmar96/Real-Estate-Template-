@@ -50,7 +50,7 @@ class Post extends Model
         $body = strip_tags((string) $this->t('body', $locale));
         $words = count(array_filter(preg_split('/\s+/u', $body) ?: []));
 
-        return max(1, (int) round($words / 200));
+        return max(1, (int) ceil($words / 180));
     }
 
     /** نفس شكل الـ props اللي الفرونت متوقعه */
