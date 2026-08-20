@@ -3,6 +3,7 @@
 namespace Modules\Properties\Http\Controllers;
 
 use App\Support\ResourceController;
+use Illuminate\Validation\Rule;
 use Modules\Compounds\Models\Compound;
 use Modules\Locations\Models\Location;
 use Modules\Properties\Models\Property;
@@ -46,7 +47,7 @@ class PropertyAdminController extends ResourceController
             ]],
             ['name' => 'type',        'label' => 'النوع',             'type' => 'select', 'options' => array_map(
                 fn ($t) => ['value' => $t, 'label' => $t],
-                ['شقة', 'دوبلكس', 'فيلا', 'تاون هاوس', 'توين هاوس', 'بنتهاوس', 'شاليه', 'إداري', 'تجاري'],
+                array_keys(Property::TYPES),
             )],
             ['name' => 'price',       'label' => 'السعر (عربي)',      'type' => 'text', 'hint' => 'مثال: EGP 4,850,000'],
             ['name' => 'price_en',    'label' => 'السعر (إنجليزي)',   'type' => 'text'],
@@ -56,6 +57,16 @@ class PropertyAdminController extends ResourceController
             ['name' => 'image',       'label' => 'الصورة',            'type' => 'image'],
             ['name' => 'sort',        'label' => 'الترتيب',           'type' => 'number'],
             ['name' => 'is_active',   'label' => 'مفعّل',             'type' => 'toggle'],
+        ];
+    }
+
+    protected function rules(?int $id): array
+    {
+        return [
+            // الـ id بيوصل من الفورم، فلازم يتأكد إنه موجود فعلًا
+            'location_id' => ['nullable', 'integer', 'exists:locations,id'],
+            'compound_id' => ['nullable', 'integer', 'exists:compounds,id'],
+            'ref' => ['nullable', 'string', 'max:40', Rule::unique('properties', 'ref')->ignore($id)],
         ];
     }
 

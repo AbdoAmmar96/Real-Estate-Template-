@@ -6,6 +6,9 @@ import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
 import type { ContactOptions, SharedProps } from "@/lib/types";
 
+/** website حقل مصيدة للبوتس — مخفي في الفورم */
+const emptyForm = { name: "", phone: "", area: "", budget: "", details: "", website: "" };
+
 const copy = {
     ar: {
         crumb: "اتصل بنا",
@@ -86,7 +89,7 @@ export default function Contact({ options }: { options: ContactOptions }) {
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(0);
-    const [form, setForm] = useState({ name: "", phone: "", area: "", budget: "", details: "" });
+    const [form, setForm] = useState(emptyForm);
 
     const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
         setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -172,7 +175,7 @@ export default function Contact({ options }: { options: ContactOptions }) {
                                         type="button"
                                         onClick={() => {
                                             setSent(false);
-                                            setForm({ name: "", phone: "", area: "", budget: "", details: "" });
+                                            setForm(emptyForm);
                                         }}
                                         className="mt-6 rounded-brand border-2 border-secondary px-6 py-3 text-sm font-extrabold text-secondary transition hover:bg-secondary hover:text-white"
                                     >
@@ -182,6 +185,18 @@ export default function Contact({ options }: { options: ContactOptions }) {
                             ) : (
                                 <form onSubmit={submit} className="flex flex-col gap-4">
                                     <h2 className="text-2xl font-extrabold text-secondary">{t.formTitle}</h2>
+
+                                    {/* مصيدة بوتس — مخفية عن البني آدم وعن قارئ الشاشة */}
+                                    <input
+                                        type="text"
+                                        name="website"
+                                        value={form.website}
+                                        onChange={set("website")}
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        aria-hidden
+                                        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                                    />
 
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <label className="flex flex-col gap-2">

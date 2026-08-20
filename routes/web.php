@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,13 +20,25 @@ Route::prefix('{locale}')
             'searchOptions'    => \App\Support\Catalog::searchOptions($locale),
         ]))->name('home');
 
-        Route::get('/properties', fn (string $locale) => Inertia::render('Site/Properties', [
-            'properties' => \App\Support\Catalog::properties($locale),
-        ]))->name('properties');
+        Route::get('/properties', function (Request $request, string $locale) {
+            $filters = \App\Support\Catalog::filters($request);
 
-        Route::get('/compounds', fn (string $locale) => Inertia::render('Site/Compounds', [
-            'compounds' => \App\Support\Catalog::compounds($locale),
-        ]))->name('compounds');
+            return Inertia::render('Site/Properties', [
+                'properties' => \App\Support\Catalog::properties($locale, null, $filters),
+                'filters' => $filters,
+                'options' => \App\Support\Catalog::searchOptions($locale),
+            ]);
+        })->name('properties');
+
+        Route::get('/compounds', function (Request $request, string $locale) {
+            $filters = \App\Support\Catalog::filters($request);
+
+            return Inertia::render('Site/Compounds', [
+                'compounds' => \App\Support\Catalog::compounds($locale, null, $filters),
+                'filters' => $filters,
+                'options' => \App\Support\Catalog::searchOptions($locale),
+            ]);
+        })->name('compounds');
 
         Route::get('/about', fn (string $locale) => Inertia::render('Site/About', [
             'milestones' => \App\Support\DemoContent::milestones($locale),
@@ -58,6 +71,7 @@ Route::prefix('{locale}')
 
         // استقبال طلبات فورم "اتصل بنا" → موديول Leads
         Route::post('/leads', [\Modules\Leads\Http\Controllers\LeadController::class, 'store'])
+            ->middleware('throttle:8,1')
             ->name('leads.store');
 
 

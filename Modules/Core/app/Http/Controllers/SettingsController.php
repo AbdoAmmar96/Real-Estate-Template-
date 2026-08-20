@@ -5,6 +5,7 @@ namespace Modules\Core\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Core\Models\Setting;
@@ -142,6 +143,47 @@ class SettingsController extends Controller
         'google_place_id' => 'بيفعّل زرار «قيّمنا على جوجل» و«شوف تقييماتنا».',
     ];
 
+    /**
+     * قواعد لكل مفتاح حسب نوعه. مهم أمنيًا: قيم الثيم بتتحقن جوه <style>
+     * في app.blade.php، فلو دخلت قيمة حرة ممكن تكسر الصفحة أو تحقن CSS.
+     */
+    private function valueRules(string $group): array
+    {
+        $rules = [];
+        $options = self::options();
+
+        foreach (array_keys($this->groupKeys($group)) as $key) {
+            $rules["values.{$key}"] = match (self::TYPES[$key] ?? 'text') {
+                'color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{3,8}$/'],
+                'select' => ['nullable', 'string', Rule::in(array_column($options[$key] ?? [], 'value'))],
+                default => ['nullable', 'string', 'max:2000'],
+            };
+        }
+
+        // مفيش قيمة CSS حرة: الاستدارة لازم تكون رقم بوحدة
+        if ($group === 'theme') {
+            $rules['values.radius'] = ['nullable', 'string', 'regex:/^\d{1,3}(px|rem|em|%)$/'];
+        }
+
+        return $rules;
+    }
+
+    private function valueAttributes(string $group): array
+    {
+        $attributes = [];
+
+        foreach (array_keys($this->groupKeys($group)) as $key) {
+            $attributes["values.{$key}"] = self::LABELS[$key] ?? $key;
+        }
+
+        return $attributes;
+    }
+
+    private function groupKeys(string $group): array
+    {
+        return Setting::where('group', $group)->pluck('value', 'key')->toArray();
+    }
+
     public function edit(string $group): Response
     {
         abort_unless(array_key_exists($group, self::GROUPS), 404);
@@ -168,10 +210,11 @@ class SettingsController extends Controller
     {
         abort_unless(array_key_exists($group, self::GROUPS), 404);
 
-        $data = $request->validate([
-            'values'   => ['required', 'array'],
-            'values.*' => ['nullable', 'string', 'max:2000'],
-        ]);
+        $data = $request->validate(
+            ['values' => ['required', 'array']] + $this->valueRules($group),
+            [],
+            $this->valueAttributes($group),
+        );
 
         $settings->setMany($group, $data['values']);
 

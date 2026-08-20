@@ -15,6 +15,12 @@ class LeadController extends Controller
 {
     public function store(Request $request, string $locale): RedirectResponse
     {
+        // مصيدة البوتس: الحقل ده مخفي فالإنسان مبيملاهوش أبدًا.
+        // بنرجّع نجاح عادي عشان البوت ميعرفش إنه اتمسك.
+        if (filled($request->input('website'))) {
+            return back()->with('success', $locale === 'en' ? 'Request received ✅' : 'وصلنا طلبك ✅');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:40'],

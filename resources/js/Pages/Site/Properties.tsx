@@ -1,6 +1,7 @@
 import { usePage } from "@inertiajs/react";
 import { SearchX } from "lucide-react";
 import { useMemo, useState } from "react";
+import ActiveFilters, { type SearchFilters } from "@/Components/site/ActiveFilters";
 import PageHero from "@/Components/site/PageHero";
 import PropertyCard from "@/Components/site/PropertyCard";
 import Reveal from "@/Components/site/Reveal";
@@ -34,7 +35,7 @@ const copy = {
     },
 };
 
-export default function Properties({ properties }: { properties: Property[] }) {
+export default function Properties({ properties, filters }: { properties: Property[]; filters: SearchFilters }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
     const t = copy[locale] ?? copy.ar;
@@ -76,6 +77,8 @@ export default function Properties({ properties }: { properties: Property[] }) {
 
             <section className="bg-bg px-4 py-10">
                 <div className="mx-auto max-w-7xl">
+                    <ActiveFilters filters={filters} path="/properties" />
+
                     {/* ---------- شريط الفلاتر ---------- */}
                     <div className="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4 rounded-3xl border border-gray-100 bg-bg px-6 py-4 shadow-[0_4px_18px_rgba(11,18,32,0.04)]">
                         <div className="flex flex-wrap items-center gap-2">

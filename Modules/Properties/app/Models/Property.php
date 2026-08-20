@@ -12,6 +12,24 @@ class Property extends Model
 {
     use Bilingual;
 
+    /**
+     * أنواع العقارات — مصدر واحد للأدمن ولفلتر البحث في الهيرو،
+     * عشان القيمة اللي بتتخزّن هي نفسها اللي البحث بيدوّر بيها.
+     */
+    public const TYPES = [
+        'شقة' => 'Apartment',
+        'دوبلكس' => 'Duplex',
+        'بنتهاوس' => 'Penthouse',
+        'استوديو' => 'Studio',
+        'فيلا' => 'Villa',
+        'تاون هاوس' => 'Townhouse',
+        'توين هاوس' => 'Twin house',
+        'شاليه' => 'Chalet',
+        'مكتب إداري' => 'Office',
+        'محل تجاري' => 'Retail',
+        'عيادة' => 'Clinic',
+    ];
+
     protected $fillable = [
         'title', 'title_en', 'location_id', 'compound_id', 'purpose', 'type',
         'price', 'price_en', 'beds', 'baths', 'size', 'ref', 'image', 'sort', 'is_active',

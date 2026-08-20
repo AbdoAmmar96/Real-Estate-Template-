@@ -46,10 +46,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?{{ $fonts ?: 'family=Cairo:wght@400;500;600;700;800;900' }}&display=swap" rel="stylesheet">
 
-    {{-- ⚡ Theme Engine: كل الـ tokens بتتحقن من الداشبورد — تغيير لون = بدون build --}}
+    {{-- ⚡ Theme Engine: كل الـ tokens بتتحقن من الداشبورد — تغيير لون = بدون build.
+         التحقق بيحصل عند الحفظ، والفلترة دي طبقة تانية: أي قيمة فيها حرف بيقفل
+         الـ style أو بيفتح تعليق CSS بتتشال بدل ما تكسر الصفحة. --}}
     <style>
         :root {
         @foreach ($theme as $key => $value)
+            @continue (preg_match('/[<>{};@\\\\]|\*\//', (string) $value))
             --{{ str_replace('_', '-', $key) }}: {{ $value }};
         @endforeach
         }

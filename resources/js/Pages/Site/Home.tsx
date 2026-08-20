@@ -31,14 +31,6 @@ const copy = {
         avgValue: "EGP 34,500",
         planLabel: "أنظمة تقسيط لحد",
         planValue: "10 سنوات",
-        fArea: "المنطقة",
-        fAreaAll: "كل المناطق",
-        fPurpose: "الغرض",
-        fType: "النوع",
-        fPrice: "أقصى سعر",
-        fSearch: "ابحث",
-        purposes: ["بيع", "إيجار"],
-        types: ["شقة", "دوبلكس", "فيلا", "إداري"],
         propsTitle: "عقارات مختارة",
         propsSub: "وحدات تمت مراجعة أوراقها ومعاينتها من فريقنا خلال آخر أسبوعين.",
         propsAll: "كل العقارات",
@@ -75,14 +67,6 @@ const copy = {
         avgValue: "EGP 34,500",
         planLabel: "Installments up to",
         planValue: "10 years",
-        fArea: "Area",
-        fAreaAll: "All areas",
-        fPurpose: "Purpose",
-        fType: "Type",
-        fPrice: "Max price",
-        fSearch: "Search",
-        purposes: ["Sale", "Rent"],
-        types: ["Apartment", "Duplex", "Villa", "Office"],
         propsTitle: "Selected properties",
         propsSub: "Units whose papers were reviewed and inspected by our team in the last two weeks.",
         propsAll: "All properties",
@@ -210,59 +194,6 @@ export default function Home({
                 </div>
             </section>
 
-            {/* ---------------- شريط البحث (كارت طافي فوق الهيرو) ---------------- */}
-            <section className="bg-bg px-4">
-                <div className="mx-auto max-w-7xl">
-                    <form
-                        action={`/${locale}/properties`}
-                        className="-mt-10 grid gap-4 rounded-3xl border border-gray-100 bg-bg p-6 shadow-[0_12px_40px_rgba(11,18,32,0.05)] md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto] lg:items-end"
-                    >
-                        <label className="flex flex-col gap-2">
-                            <span className="text-xs font-extrabold text-secondary">{t.fArea}</span>
-                            <select className="rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text">
-                                <option>{t.fAreaAll}</option>
-                                {areas.map((a) => (
-                                    <option key={a.id}>{a.name}</option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <label className="flex flex-col gap-2">
-                            <span className="text-xs font-extrabold text-secondary">{t.fPurpose}</span>
-                            <select className="rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text">
-                                {t.purposes.map((v) => (
-                                    <option key={v}>{v}</option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <label className="flex flex-col gap-2">
-                            <span className="text-xs font-extrabold text-secondary">{t.fType}</span>
-                            <select className="rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text">
-                                {t.types.map((v) => (
-                                    <option key={v}>{v}</option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <label className="flex flex-col gap-2">
-                            <span className="text-xs font-extrabold text-secondary">{t.fPrice}</span>
-                            <input
-                                dir="ltr"
-                                placeholder="10,000,000"
-                                className="w-full rounded-lg border border-gray-200 bg-bg px-4 py-3 text-sm font-bold text-text"
-                            />
-                        </label>
-
-                        <button
-                            type="submit"
-                            className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover"
-                        >
-                            {t.fSearch}
-                        </button>
-                    </form>
-                </div>
-            </section>
 
             {/* ---------------- عقارات مختارة ---------------- */}
             <section className="bg-bg px-4 py-14">

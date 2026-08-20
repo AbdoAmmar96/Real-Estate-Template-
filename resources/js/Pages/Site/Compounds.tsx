@@ -1,5 +1,6 @@
 import { usePage } from "@inertiajs/react";
 import { CalendarCheck, MapPin } from "lucide-react";
+import ActiveFilters, { type SearchFilters } from "@/Components/site/ActiveFilters";
 import PageHero from "@/Components/site/PageHero";
 import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
@@ -30,7 +31,7 @@ const copy = {
     },
 };
 
-export default function Compounds({ compounds }: { compounds: Compound[] }) {
+export default function Compounds({ compounds, filters }: { compounds: Compound[]; filters: SearchFilters }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
     const t = copy[locale] ?? copy.ar;
@@ -50,6 +51,10 @@ export default function Compounds({ compounds }: { compounds: Compound[] }) {
             <PageHero bg="/images/demo/bg-comps.jpg" crumb={t.crumb} title={t.title} desc={t.desc} />
 
             <section className="bg-bg px-4 py-12">
+                <div className="mx-auto max-w-7xl">
+                    <ActiveFilters filters={filters} path="/compounds" />
+                </div>
+
                 <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {compounds.map((c, i) => (
                         <Reveal key={c.id} delay={i * 90}>

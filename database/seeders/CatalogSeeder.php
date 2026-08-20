@@ -95,6 +95,7 @@ class CatalogSeeder extends Seeder
                     'title_en' => $en['title'] ?? null,
                     'location_id' => $locations[$p['area']]->id ?? null,
                     'purpose' => $p['purpose'] === 'إيجار' ? 'rent' : 'sale',
+                    'type' => $this->guessType($p['title']),
                     'price' => $p['price'],
                     'price_en' => $en['price'] ?? null,
                     'beds' => $p['beds'],
@@ -110,5 +111,18 @@ class CatalogSeeder extends Seeder
             '  مناطق: %d · مطوّرون: %d · كمبوندات: %d · عقارات: %d',
             Location::count(), Developer::count(), Compound::count(), Property::count(),
         ));
+    }
+
+    /** نوع العقار من عنوانه — الأنواع مصدرها Property::TYPES */
+    private function guessType(string $title): string
+    {
+        foreach (array_keys(Property::TYPES) as $type) {
+            // "مكتب إداري" بيتطابق مع عنوان فيه "مكتب إداري"، و"شقة" مع "شقة"
+            if (str_contains($title, $type)) {
+                return $type;
+            }
+        }
+
+        return array_key_first(Property::TYPES);
     }
 }

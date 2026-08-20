@@ -53,6 +53,15 @@ class CompoundAdminController extends ResourceController
         ];
     }
 
+    protected function rules(?int $id): array
+    {
+        return [
+            // الـ id بيوصل من الفورم، فلازم يتأكد إنه موجود فعلًا
+            'developer_id' => ['nullable', 'integer', 'exists:developers,id'],
+            'location_id' => ['nullable', 'integer', 'exists:locations,id'],
+        ];
+    }
+
     private function options(string $model): array
     {
         return $model::orderBy('name')->pluck('name', 'id')

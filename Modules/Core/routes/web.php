@@ -20,7 +20,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // ضيوف: تسجيل الدخول
     Route::middleware('guest')->group(function () {
         Route::get('login', [AuthController::class, 'create'])->name('login');
-        Route::post('login', [AuthController::class, 'store'])->name('login.store');
+        // 5 محاولات في الدقيقة لكل IP — يوقف تخمين كلمات المرور
+        Route::post('login', [AuthController::class, 'store'])
+            ->middleware('throttle:5,1')
+            ->name('login.store');
     });
 
     // مسجّلين بدور admin
