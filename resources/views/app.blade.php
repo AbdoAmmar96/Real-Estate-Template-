@@ -15,8 +15,12 @@
         ->map(fn ($f) => 'family='.str_replace(' ', '+', trim($f)).':wght@400;500;600;700;800;900')
         ->implode('&');
 
-    $title       = $seo['meta_title'] ?: ($general['site_name'] ?? config('app.name'));
-    $description = $seo['meta_description'] ?: ($general['tagline'] ?? '');
+    // ميتا الصفحة الحالية جاية من الراوت (App\Support\Seo)، وبتقع على الإعدادات العامة
+    $meta        = $page['props']['meta'] ?? [];
+    $title       = $meta['title'] ?? ($seo['meta_title'] ?: ($general['site_name'] ?? config('app.name')));
+    $description = $meta['description'] ?? ($seo['meta_description'] ?: ($general['tagline'] ?? ''));
+    $canonical   = $meta['canonical'] ?? url()->current();
+    $ogImage     = $meta['image'] ?? url($settings->get('branding', 'logo_path', '/images/logo.png'));
 @endphp
 <html lang="{{ app()->getLocale() }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 <head>
@@ -29,17 +33,33 @@
         <meta property="og:description" content="{{ $description }}">
     @endif
 
+    <link rel="canonical" href="{{ $canonical }}">
+
+    @foreach (($meta['alternates'] ?? []) as $altLocale => $altUrl)
+        <link rel="alternate" hreflang="{{ $altLocale }}" href="{{ $altUrl }}">
+    @endforeach
+    @if (! empty($meta['alternates']['ar']))
+        <link rel="alternate" hreflang="x-default" href="{{ $meta['alternates']['ar'] }}">
+    @endif
+
     <meta property="og:title" content="{{ $title }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="{{ $meta['type'] ?? 'website' }}">
+    <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:locale" content="{{ $isRtl ? 'ar_EG' : 'en_US' }}">
+    <meta property="og:image" content="{{ $ogImage }}">
     @if (! empty($general['site_name']))
         <meta property="og:site_name" content="{{ $general['site_name'] }}">
     @endif
-    @if (! empty($theme['logo_path'] ?? $settings->get('branding', 'logo_path')))
-        <meta property="og:image" content="{{ url($settings->get('branding', 'logo_path')) }}">
-    @endif
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title }}">
+    @if ($description)
+        <meta name="twitter:description" content="{{ $description }}">
+    @endif
+    <meta name="twitter:image" content="{{ $ogImage }}">
+
+    @foreach (($meta['jsonLd'] ?? []) as $schema)
+        <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+    @endforeach
 
     {{-- خطوط الهوية — بتتغير من شاشة "الهوية والألوان" من غير build --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

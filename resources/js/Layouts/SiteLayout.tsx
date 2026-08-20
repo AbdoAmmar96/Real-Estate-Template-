@@ -1,4 +1,4 @@
-import { Link, usePage } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { Mail, Menu, MessageCircle, Phone, X as Close } from "lucide-react";
 import { Facebook, Instagram, Linkedin, Snapchat, Tiktok, X, Youtube } from "@/Components/site/SocialIcons";
 import { useState, type ReactNode } from "react";
@@ -15,7 +15,7 @@ const socialIcons = [
 ] as const;
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-    const { settings, locale, menu } = usePage<SharedProps>().props;
+    const { settings, locale, menu, meta } = usePage<SharedProps>().props;
     const general = settings.general ?? {};
     const branding = settings.branding ?? {};
     const contact = settings.contact ?? {};
@@ -63,6 +63,10 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-screen flex-col bg-bg">
+            {/* السيرفر بيرندر الميتا كاملة لمحركات البحث — ده بس عشان عنوان التاب
+                يتغيّر وإنت بتتنقّل جوه الموقع من غير reload */}
+            {meta?.title && <Head title={meta.title} />}
+
             {/* ---------- شريط علوي كحلي: تواصل سريع + سوشيال ---------- */}
             <div className="hidden bg-bg-dark text-white/70 md:block">
                 <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs font-bold">

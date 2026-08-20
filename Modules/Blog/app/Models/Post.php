@@ -65,6 +65,8 @@ class Post extends Model
             'image' => $this->image ?: '/images/demo/property-1.jpg',
             'author' => $this->author ?: '',
             'date' => $this->published_at?->translatedFormat($locale === 'en' ? 'j M Y' : 'j F Y') ?? '',
+            // ISO للـ JSON-LD و<time> — التاريخ المنسّق فوق للعرض بس
+            'publishedAt' => $this->published_at?->toIso8601String(),
             'read' => $this->readMinutes($locale),
         ];
     }

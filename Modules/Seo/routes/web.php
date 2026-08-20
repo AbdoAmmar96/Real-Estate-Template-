@@ -1,8 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Seo\Http\Controllers\SeoController;
+use Modules\Seo\Http\Controllers\SitemapController;
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('seos', SeoController::class)->names('seo');
+/*
+ |----------------------------------------------------------------------
+ | Seo Module — خريطة الموقع و robots
+ | (بره بادئة اللغة: العناكب بتدوّر عليهم في الجذر)
+ |----------------------------------------------------------------------
+ */
+
+Route::middleware('web')->group(function () {
+    Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+    Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 });

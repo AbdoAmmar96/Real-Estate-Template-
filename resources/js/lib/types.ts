@@ -18,6 +18,8 @@ export interface SharedProps {
     settings: SettingsGroups;
     locale: "ar" | "en";
     menu: { header: MenuLink[]; footer: MenuLink[] };
+    /** ميتا الصفحة — بتترندر في السيرفر، وبتستخدم هنا لعنوان التاب بس */
+    meta?: { title: string; description: string; canonical: string };
     auth: { user: AuthUser | null };
     flash: { success?: string | null; error?: string | null };
     [key: string]: unknown;
@@ -77,6 +79,8 @@ export interface BlogPost {
     image: string;
     author: string;
     date: string;
+    /** تاريخ ISO — للـ JSON-LD و<time> */
+    publishedAt: string | null;
     /** وقت القراءة بالدقايق */
     read: number;
 }
