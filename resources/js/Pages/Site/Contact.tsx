@@ -1,5 +1,5 @@
 import { router, usePage } from "@inertiajs/react";
-import { Building2, CheckCircle2, ChevronDown, Clock, Mail, MessageCircle, Phone } from "lucide-react";
+import { Building2, CheckCircle2, ChevronDown, Clock, Mail, MessageCircle, Phone, Star } from "lucide-react";
 import { useState } from "react";
 import PageHero from "@/Components/site/PageHero";
 import Reveal from "@/Components/site/Reveal";
@@ -30,6 +30,10 @@ const copy = {
         infoHours: "مواعيد العمل",
         hours: "السبت – الخميس · 10ص – 8م",
         offices: "مكاتبنا",
+        reviews: "تقييمات جوجل",
+        reviewsText: "شوف تجارب عملاء اشتروا معانا فعلًا — كل التقييمات على جوجل من غير فلترة.",
+        reviewsRead: "اقرأ التقييمات",
+        reviewsWrite: "قيّمنا على جوجل",
         waCta: "كلّمنا واتساب",
         stepsTitle: "بعد ما تبعت الطلب",
         stepsSub: "ثلاث خطوات ثابتة، ومستشار واحد مسؤول عن ملفك من أول مكالمة.",
@@ -59,6 +63,10 @@ const copy = {
         infoHours: "Working hours",
         hours: "Saturday – Thursday · 10am – 8pm",
         offices: "Our offices",
+        reviews: "Google reviews",
+        reviewsText: "See what clients who actually bought with us said — every review on Google, unfiltered.",
+        reviewsRead: "Read reviews",
+        reviewsWrite: "Review us on Google",
         waCta: "WhatsApp us",
         stepsTitle: "After you send the request",
         stepsSub: "Three fixed steps, and one advisor responsible for your file from the first call.",
@@ -73,6 +81,7 @@ export default function Contact({ options }: { options: ContactOptions }) {
     const t = copy[locale] ?? copy.ar;
     const contact = settings.contact ?? {};
     const wa = contact.whatsapp;
+    const placeId = settings.integrations?.google_place_id;
 
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
@@ -261,6 +270,35 @@ export default function Contact({ options }: { options: ContactOptions }) {
                                     ))}
                                 </div>
                             </div>
+
+                            {placeId && (
+                                <div className="rounded-3xl border border-gray-100 bg-bg p-6">
+                                    <h3 className="flex items-center gap-2 text-lg font-extrabold text-secondary">
+                                        <Star size={18} className="fill-primary text-primary" />
+                                        {t.reviews}
+                                    </h3>
+                                    <p className="mt-2 text-xs leading-[1.8] text-muted">{t.reviewsText}</p>
+
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <a
+                                            href={`https://search.google.com/local/reviews?placeid=${placeId}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="rounded-brand bg-secondary px-4 py-2.5 text-xs font-extrabold text-white transition hover:opacity-90"
+                                        >
+                                            {t.reviewsRead}
+                                        </a>
+                                        <a
+                                            href={`https://search.google.com/local/writereview?placeid=${placeId}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="rounded-brand border-2 border-primary px-4 py-2.5 text-xs font-extrabold text-secondary transition hover:bg-primary hover:text-primary-fg"
+                                        >
+                                            {t.reviewsWrite}
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
 
                             {wa && (
                                 <a

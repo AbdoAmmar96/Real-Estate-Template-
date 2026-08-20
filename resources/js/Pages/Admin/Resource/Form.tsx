@@ -1,7 +1,9 @@
 import { Link, useForm } from "@inertiajs/react";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ImagePlus } from "lucide-react";
 import { useState } from "react";
 import { Button, Card, Field, Input } from "@/Components/admin/ui";
+import MediaPicker from "@/Components/admin/MediaPicker";
+import { isVideo } from "@/lib/media";
 import AdminLayout from "@/Layouts/AdminLayout";
 import type { ResourceField, ResourceSchema } from "@/lib/types";
 
@@ -26,6 +28,7 @@ export default function ResourceForm({
 
     const { data, setData, post, put, processing, errors } = useForm<Values>(initial);
     const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+    const [picking, setPicking] = useState<string | null>(null);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,23 +111,43 @@ export default function ResourceForm({
         }
 
         if (f.type === "image") {
+            const path = String(value ?? "");
+
             return (
                 <div className="flex items-center gap-3">
+                    {path ? (
+                        isVideo(path) ? (
+                            <video
+                                src={path}
+                                muted
+                                className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={path}
+                                alt=""
+                                className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 object-cover"
+                            />
+                        )
+                    ) : (
+                        <span className="h-12 w-12 shrink-0 rounded-lg border border-dashed border-gray-300" />
+                    )}
+
                     <Input
-                        value={String(value ?? "")}
+                        value={path}
                         onChange={(e) => setData(f.name, e.target.value)}
                         placeholder="/images/demo/..."
                         dir="ltr"
                     />
-                    {value ? (
-                        <img
-                            src={String(value)}
-                            alt=""
-                            className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 object-cover"
-                        />
-                    ) : (
-                        <span className="h-12 w-12 shrink-0 rounded-lg border border-dashed border-gray-300" />
-                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => setPicking(f.name)}
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2.5 text-xs font-bold text-gray-700 transition hover:border-primary hover:text-secondary"
+                    >
+                        <ImagePlus size={15} />
+                        المكتبة
+                    </button>
                 </div>
             );
         }
@@ -184,6 +207,13 @@ export default function ResourceForm({
                     </div>
                 </Card>
             </form>
+
+            <MediaPicker
+                open={picking !== null}
+                current={picking ? String(data[picking] ?? "") : undefined}
+                onClose={() => setPicking(null)}
+                onPick={(path) => picking && setData(picking, path)}
+            />
         </AdminLayout>
     );
 }

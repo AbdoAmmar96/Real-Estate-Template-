@@ -4,13 +4,17 @@ import {
     Building2,
     Home,
     Image as ImageIcon,
+    Images,
     Inbox,
     LayoutDashboard,
+    Link2,
+    ListTree,
     LogOut,
     MapPin,
     Newspaper,
     Palette,
     Phone,
+    Search,
     Settings,
     Share2,
     UserCog,
@@ -25,6 +29,14 @@ const settingsNav = [
     { href: "/admin/settings/branding", label: "اللوجو والميديا", icon: ImageIcon },
     { href: "/admin/settings/contact", label: "بيانات التواصل", icon: Phone },
     { href: "/admin/settings/social", label: "السوشيال ميديا", icon: Share2 },
+    { href: "/admin/settings/seo", label: "السيو", icon: Search },
+    { href: "/admin/settings/integrations", label: "التكاملات", icon: Link2 },
+];
+
+// محتوى مشترك بين كل الصفحات
+const contentNav = [
+    { href: "/admin/media", label: "مكتبة الميديا", icon: Images },
+    { href: "/admin/menus", label: "القوائم", icon: ListTree },
 ];
 
 // موديولات الدومين
@@ -74,6 +86,9 @@ export default function AdminLayout({ title, children }: { title: string; childr
 
                     <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">الإعدادات</div>
                     {settingsNav.map((s) => item(s.href, s.label, s.icon, path.startsWith(s.href)))}
+
+                    <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">المحتوى</div>
+                    {contentNav.map((c) => item(c.href, c.label, c.icon, path.startsWith(c.href)))}
 
                     <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">الموديولات</div>
                     {moduleNav.map((m) => item(m.href, m.label, m.icon, path.startsWith(m.href)))}

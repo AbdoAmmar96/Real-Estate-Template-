@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Core\Http\Controllers\AuthController;
 use Modules\Core\Http\Controllers\DashboardController;
+use Modules\Core\Http\Controllers\MediaController;
+use Modules\Core\Http\Controllers\MenuAdminController;
 use Modules\Core\Http\Controllers\SettingsController;
 use Modules\Core\Http\Controllers\UserAdminController;
 
@@ -27,6 +29,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('settings/{group}', [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
+
+        // مكتبة الميديا — الشاشة + JSON للـ MediaPicker
+        Route::get('media',           [MediaController::class, 'index'])->name('media.index');
+        Route::get('media/files',     [MediaController::class, 'list'])->name('media.list');
+        Route::post('media/files',    [MediaController::class, 'store'])->name('media.store');
+        Route::delete('media/files',  [MediaController::class, 'destroy'])->name('media.destroy');
+
+        // قوائم الهيدر والفوتر
+        Route::get('menus',           [MenuAdminController::class, 'index'])->name('menus.index');
+        Route::get('menus/create',    [MenuAdminController::class, 'create'])->name('menus.create');
+        Route::post('menus',          [MenuAdminController::class, 'store'])->name('menus.store');
+        Route::get('menus/{id}/edit', [MenuAdminController::class, 'edit'])->name('menus.edit');
+        Route::put('menus/{id}',      [MenuAdminController::class, 'update'])->name('menus.update');
+        Route::delete('menus/{id}',   [MenuAdminController::class, 'destroy'])->name('menus.destroy');
 
         // إدارة مستخدمي اللوحة (إضافة/حذف حساب وتغيير كلمة المرور والدور)
         Route::get('users',           [UserAdminController::class, 'index'])->name('users.index');

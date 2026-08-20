@@ -11,6 +11,7 @@ class CoreDatabaseSeeder extends Seeder
         $this->call([
             SettingsSeeder::class,
             AdminUserSeeder::class,
+            MenuSeeder::class,
         ]);
     }
 }

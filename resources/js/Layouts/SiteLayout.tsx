@@ -1,17 +1,8 @@
 import { Link, usePage } from "@inertiajs/react";
 import { Mail, Menu, MessageCircle, Phone, X as Close } from "lucide-react";
-import { Facebook, Instagram, Linkedin, Tiktok, X, Youtube } from "@/Components/site/SocialIcons";
+import { Facebook, Instagram, Linkedin, Snapchat, Tiktok, X, Youtube } from "@/Components/site/SocialIcons";
 import { useState, type ReactNode } from "react";
-import type { SharedProps } from "@/lib/types";
-
-const navItems = [
-    { path: "", ar: "الرئيسية", en: "Home" },
-    { path: "/properties", ar: "العقارات", en: "Properties" },
-    { path: "/compounds", ar: "الكمبوندات", en: "Compounds" },
-    { path: "/blog", ar: "المدونة", en: "Blog" },
-    { path: "/about", ar: "من نحن", en: "About" },
-    { path: "/contact", ar: "اتصل بنا", en: "Contact" },
-];
+import type { MenuLink, SharedProps } from "@/lib/types";
 
 const socialIcons = [
     { key: "facebook", Icon: Facebook },
@@ -20,10 +11,11 @@ const socialIcons = [
     { key: "youtube", Icon: Youtube },
     { key: "tiktok", Icon: Tiktok },
     { key: "x", Icon: X },
+    { key: "snapchat", Icon: Snapchat },
 ] as const;
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-    const { settings, locale } = usePage<SharedProps>().props;
+    const { settings, locale, menu } = usePage<SharedProps>().props;
     const general = settings.general ?? {};
     const branding = settings.branding ?? {};
     const contact = settings.contact ?? {};
@@ -39,8 +31,33 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         return parts.join("/") || `/${otherLocale}`;
     };
 
-    const isActive = (path: string) =>
-        path === "" ? currentPath === `/${locale}` : currentPath.startsWith(`/${locale}${path}`);
+    const isActive = (url: string) =>
+        url === "/" ? currentPath === `/${locale}` : currentPath.startsWith(`/${locale}${url}`);
+
+    // لينك القائمة: داخلي بيمشي على Inertia، وخارجي بيفضل <a> عادي
+    const navLink = (item: MenuLink, className: string, onClick?: () => void) =>
+        item.external ? (
+            <a
+                key={item.url}
+                href={item.url}
+                onClick={onClick}
+                target={item.newTab ? "_blank" : undefined}
+                rel={item.newTab ? "noreferrer" : undefined}
+                className={className}
+            >
+                {item.label}
+            </a>
+        ) : (
+            <Link
+                key={item.url}
+                href={`/${locale}${item.url === "/" ? "" : item.url}`}
+                onClick={onClick}
+                target={item.newTab ? "_blank" : undefined}
+                className={className}
+            >
+                {item.label}
+            </Link>
+        );
 
     const year = new Date().getFullYear();
 
@@ -100,24 +117,24 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                     </Link>
 
                     <nav className="hidden items-center gap-1 lg:flex">
-                        {navItems.map((item) => {
-                            const active = isActive(item.path);
+                        {menu.header.map((item) => {
+                            const active = !item.external && isActive(item.url);
+
                             return (
-                                <Link
-                                    key={item.path}
-                                    href={`/${locale}${item.path}`}
-                                    className={`relative px-4 py-3 text-sm font-extrabold transition ${
-                                        active ? "text-secondary" : "text-secondary/70 hover:text-primary"
-                                    }`}
-                                >
-                                    {ar ? item.ar : item.en}
+                                <span key={item.url} className="relative">
+                                    {navLink(
+                                        item,
+                                        `relative block px-4 py-3 text-sm font-extrabold transition ${
+                                            active ? "text-secondary" : "text-secondary/70 hover:text-primary"
+                                        }`,
+                                    )}
                                     {/* أندرلاين دهبي للصفحة الحالية */}
                                     <span
-                                        className={`absolute inset-x-4 bottom-1.5 h-0.5 rounded-full bg-primary transition-opacity ${
+                                        className={`pointer-events-none absolute inset-x-4 bottom-1.5 h-0.5 rounded-full bg-primary transition-opacity ${
                                             active ? "opacity-100" : "opacity-0"
                                         }`}
                                     />
-                                </Link>
+                                </span>
                             );
                         })}
                     </nav>
@@ -161,20 +178,17 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
                 {open && (
                     <nav className="border-t border-gray-100 bg-bg px-4 py-3 lg:hidden">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                href={`/${locale}${item.path}`}
-                                onClick={() => setOpen(false)}
-                                className={`block rounded-xl px-4 py-3 text-sm font-extrabold transition ${
-                                    isActive(item.path)
+                        {menu.header.map((item) =>
+                            navLink(
+                                item,
+                                `block rounded-xl px-4 py-3 text-sm font-extrabold transition ${
+                                    !item.external && isActive(item.url)
                                         ? "bg-primary/10 text-secondary"
                                         : "text-secondary/70 hover:bg-surface hover:text-primary"
-                                }`}
-                            >
-                                {ar ? item.ar : item.en}
-                            </Link>
-                        ))}
+                                }`,
+                                () => setOpen(false),
+                            ),
+                        )}
                     </nav>
                 )}
             </header>
@@ -217,15 +231,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
                         <div className="flex flex-col gap-3">
                             <span className="text-[13px] font-extrabold text-text-dark">{ar ? "الموقع" : "Site"}</span>
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.path}
-                                    href={`/${locale}${item.path}`}
-                                    className="text-sm text-white/55 transition hover:text-primary"
-                                >
-                                    {ar ? item.ar : item.en}
-                                </Link>
-                            ))}
+                            {menu.footer.map((item) =>
+                                navLink(item, "text-sm text-white/55 transition hover:text-primary"),
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-3">

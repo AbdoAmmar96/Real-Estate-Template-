@@ -6,9 +6,18 @@ export interface AuthUser {
     email: string;
 }
 
+/** لينك في قائمة الهيدر أو الفوتر — بيتدار من /admin/menus */
+export interface MenuLink {
+    label: string;
+    url: string;
+    external: boolean;
+    newTab: boolean;
+}
+
 export interface SharedProps {
     settings: SettingsGroups;
     locale: "ar" | "en";
+    menu: { header: MenuLink[]; footer: MenuLink[] };
     auth: { user: AuthUser | null };
     flash: { success?: string | null; error?: string | null };
     [key: string]: unknown;

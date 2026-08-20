@@ -27,6 +27,7 @@ class HandleInertiaRequests extends Middleware
 
             'settings' => fn () => app(SettingsService::class)->public(),
             'locale'   => fn () => app()->getLocale(),
+            'menu'     => fn () => \Modules\Core\Models\MenuItem::nav(app()->getLocale()),
 
             'auth' => [
                 'user' => $request->user()?->only('id', 'name', 'email'),
