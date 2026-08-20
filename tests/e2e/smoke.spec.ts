@@ -68,3 +68,66 @@ test('theme tokens reach the browser from the database', async ({ page }) => {
     // Proves the Theme Engine injected DB settings rather than falling back to build-time CSS.
     expect(primary).toMatch(/^#[0-9a-fA-F]{3,8}$/);
 });
+
+/**
+ * Detail pages: a card that does not open is the whole point of the feature,
+ * so the click path itself is asserted — not just the URL responding.
+ */
+test('property card opens the property page', async ({ page }) => {
+    await page.goto('/ar/properties', { waitUntil: 'networkidle' });
+
+    const card = page.locator('article a[href*="/ar/properties/"]').first();
+    const href = await card.getAttribute('href');
+    expect(href, 'property cards must link to a detail page').toMatch(/^\/ar\/properties\/.+/);
+
+    await card.click();
+    // `php artisan serve` بيرد على طلب واحد في المرة، والاختبارات بتشتغل بالتوازي —
+    // فمهلة أطول من الافتراضية عشان الانتظار ميبقاش flaky
+    await page.waitForURL(`**${href}`, { timeout: 20_000 });
+
+    // بيانات الوحدة — العنوان والسعر ولوحة المواصفات
+    await expect(page.locator('h1')).not.toBeEmpty();
+    await expect(page.getByRole('heading', { name: 'بيانات الوحدة' })).toBeVisible();
+});
+
+test('compound card opens the compound page', async ({ page }) => {
+    await page.goto('/ar/compounds', { waitUntil: 'networkidle' });
+
+    const card = page.locator('article a[href*="/ar/compounds/"]').first();
+    const href = await card.getAttribute('href');
+    expect(href, 'compound cards must link to a detail page').toMatch(/^\/ar\/compounds\/.+/);
+
+    await card.click();
+    await page.waitForURL(`**${href}`, { timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'نظام السداد' })).toBeVisible();
+});
+
+test('unknown property slug is a 404, not a blank page', async ({ page }) => {
+    const response = await page.goto('/ar/properties/no-such-unit');
+    expect(response?.status()).toBe(404);
+});
+
+test('property page carries its own canonical, hreflang and JSON-LD', async ({ page }) => {
+    await page.goto('/ar/properties', { waitUntil: 'networkidle' });
+    const href = await page.locator('article a[href*="/ar/properties/"]').first().getAttribute('href');
+    await page.goto(href!, { waitUntil: 'networkidle' });
+
+    // الميتا بتترندر في السيرفر (app.blade.php) — من غير كده الصفحة مالهاش قيمة في البحث
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', new RegExp(`${href}$`));
+    await expect(page.locator('link[hreflang="en"]')).toHaveCount(1);
+
+    const types = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
+        nodes.map((n) => JSON.parse(n.textContent || '{}')['@type'])
+    );
+    expect(types).toContain('RealEstateListing');
+    expect(types).toContain('BreadcrumbList');
+});
+
+test('sitemap lists the detail pages', async ({ page }) => {
+    const response = await page.goto('/sitemap.xml');
+    expect(response?.status()).toBe(200);
+
+    const xml = await response!.text();
+    expect(xml).toMatch(/<loc>[^<]*\/ar\/properties\/[^<]+<\/loc>/);
+    expect(xml).toMatch(/<loc>[^<]*\/ar\/compounds\/[^<]+<\/loc>/);
+});
