@@ -1,5 +1,5 @@
 import { usePage } from "@inertiajs/react";
-import { Building2, CheckCircle2, Clock, Mail, MessageCircle, Phone } from "lucide-react";
+import { Building2, CheckCircle2, ChevronDown, Clock, Mail, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import PageHero from "@/Components/site/PageHero";
 import Reveal from "@/Components/site/Reveal";
@@ -30,6 +30,10 @@ const copy = {
         hours: "السبت – الخميس · 10ص – 8م",
         offices: "مكاتبنا",
         waCta: "كلّمنا واتساب",
+        stepsTitle: "بعد ما تبعت الطلب",
+        stepsSub: "ثلاث خطوات ثابتة، ومستشار واحد مسؤول عن ملفك من أول مكالمة.",
+        faqTitle: "أسئلة شائعة",
+        faqSub: "أكتر حاجات بيسألوا عنها قبل أول مكالمة.",
     },
     en: {
         crumb: "Contact",
@@ -54,6 +58,10 @@ const copy = {
         hours: "Saturday – Thursday · 10am – 8pm",
         offices: "Our offices",
         waCta: "WhatsApp us",
+        stepsTitle: "After you send the request",
+        stepsSub: "Three fixed steps, and one advisor responsible for your file from the first call.",
+        faqTitle: "Frequently asked",
+        faqSub: "The questions people ask most before the first call.",
     },
 };
 
@@ -65,6 +73,7 @@ export default function Contact({ options }: { options: ContactOptions }) {
     const wa = contact.whatsapp;
 
     const [sent, setSent] = useState(false);
+    const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [form, setForm] = useState({ name: "", phone: "", area: "", budget: "", details: "" });
 
     const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
@@ -248,6 +257,74 @@ export default function Contact({ options }: { options: ContactOptions }) {
                             )}
                         </div>
                     </Reveal>
+                </div>
+            </section>
+
+            {/* ---------- بعد ما تبعت الطلب ---------- */}
+            <section className="bg-surface px-4 py-14">
+                <div className="mx-auto max-w-7xl">
+                    <Reveal>
+                        <h2 className="text-3xl font-extrabold text-secondary">{t.stepsTitle}</h2>
+                        <p className="mt-2 max-w-xl text-base leading-[1.8] text-muted">{t.stepsSub}</p>
+                    </Reveal>
+
+                    <div className="mt-8 grid gap-6 md:grid-cols-3">
+                        {options.steps.map((s, i) => (
+                            <Reveal key={s.title} delay={i * 110}>
+                                <div className="h-full rounded-2xl border border-gray-100 bg-bg p-6">
+                                    <span
+                                        dir="ltr"
+                                        className="flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-sm font-black text-secondary"
+                                    >
+                                        0{i + 1}
+                                    </span>
+                                    <h3 className="mt-4 text-[17px] font-extrabold text-secondary">{s.title}</h3>
+                                    <p className="mt-2 text-sm leading-[1.85] text-muted">{s.text}</p>
+                                </div>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ---------- أسئلة شائعة ---------- */}
+            <section className="bg-bg px-4 py-14">
+                <div className="mx-auto max-w-3xl">
+                    <Reveal>
+                        <h2 className="text-3xl font-extrabold text-secondary">{t.faqTitle}</h2>
+                        <p className="mt-2 text-base leading-[1.8] text-muted">{t.faqSub}</p>
+                    </Reveal>
+
+                    <div className="mt-8 flex flex-col gap-3">
+                        {options.faq.map((item, i) => {
+                            const isOpen = openFaq === i;
+                            return (
+                                <Reveal key={item.q} delay={i * 60}>
+                                    <div
+                                        className={`overflow-hidden rounded-2xl border transition ${
+                                            isOpen ? "border-primary/50 bg-surface" : "border-gray-100 bg-bg"
+                                        }`}
+                                    >
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenFaq(isOpen ? null : i)}
+                                            aria-expanded={isOpen}
+                                            className="flex w-full items-center justify-between gap-4 px-5 py-4 text-start"
+                                        >
+                                            <span className="text-[15px] font-extrabold text-secondary">{item.q}</span>
+                                            <ChevronDown
+                                                size={18}
+                                                className={`shrink-0 text-primary transition-transform ${isOpen ? "rotate-180" : ""}`}
+                                            />
+                                        </button>
+                                        {isOpen && (
+                                            <p className="px-5 pb-5 text-sm leading-[1.9] text-muted">{item.a}</p>
+                                        )}
+                                    </div>
+                                </Reveal>
+                            );
+                        })}
+                    </div>
                 </div>
             </section>
         </SiteLayout>

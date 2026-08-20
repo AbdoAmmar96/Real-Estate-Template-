@@ -10,11 +10,14 @@ const copy = {
         crumb: "من نحن",
         title: "اثنتا عشرة سنة في سوق واحد",
         desc: "بدأنا مكتب تسويق صغير في التجمع الخامس سنة 2014، ودلوقتي فريق من 46 شخص بيغطي القاهرة الجديدة والعاصمة الإدارية والإسكندرية.",
-        pledgeTitle: "إننا نقول للعميل «لأ» لما الوحدة مش مناسبة",
+        pledgeLabel: "اللي بيفرّقنا",
+        pledgeTitle: "بنقولك «لأ» لما الوحدة متناسبكش",
         pledge1:
-            "مستشارينا مش بياخدوا عمولة على وحدة معيّنة، فمفيش دافع يدفعوك ناحية مشروع بذاته. الوحدة بتدخل قائمتنا بعد ثلاث خطوات: مراجعة الأوراق، معاينة على الأرض، ومطابقة السعر مع آخر بيوعات المنطقة.",
+            "مستشارينا مبياخدوش عمولة مربوطة بوحدة بعينها، فمفيش أي دافع يخليهم يدفعوك ناحية مشروع دون التاني. نصيحتهم مبنية على احتياجك وميزانيتك — مش على اللي هيكسّبهم أكتر.",
         pledge2:
-            "وبعد التعاقد فريق ما بعد البيع بيفضل معاك: متابعة الأقساط، تسليم الوحدة، وتوثيق أي تعديلات مع المطوّر.",
+            "والوحدة مبتدخلش قائمتنا غير بعد ثلاث خطوات: مراجعة الأوراق والتسجيل، ومعاينة على الأرض، ومطابقة السعر بآخر بيوعات المنطقة. أي وحدة بتسقط في خطوة، بتخرج من القائمة.",
+        pledge3:
+            "وبعد التعاقد الشغل مبيقفش — فريق ما بعد البيع بيتابع معاك الأقساط وتسليم الوحدة وتوثيق أي تعديل مع المطوّر.",
         stats: [
             ["4780", "عميل أتمّ التعاقد"],
             ["46", "فرد في الفريق"],
@@ -28,11 +31,14 @@ const copy = {
         crumb: "About",
         title: "Twelve years in one market",
         desc: "We started as a small marketing office in the Fifth Settlement in 2014, and today we are a team of 46 covering New Cairo, the New Capital and Alexandria.",
-        pledgeTitle: "That we tell a client «no» when the unit does not fit",
+        pledgeLabel: "What sets us apart",
+        pledgeTitle: "We tell you «no» when the unit does not fit you",
         pledge1:
-            "Our advisors earn no commission tied to a specific unit, so there is no incentive to push you toward one project. A unit enters our list after three steps: paperwork review, an on-site viewing, and a price check against the area's latest sales.",
+            "Our advisors earn no commission tied to a specific unit, so nothing pushes them toward one project over another. Their advice is built on your needs and budget — not on what pays them more.",
         pledge2:
-            "After the contract, the after-sales team stays with you: instalment follow-up, unit handover, and documenting any changes with the developer.",
+            "And a unit only enters our list after three steps: paperwork and registration review, an on-site viewing, and a price check against the area's latest sales. Any unit that fails a step leaves the list.",
+        pledge3:
+            "After the contract the work does not stop — the after-sales team follows up on instalments, the handover, and documenting any change with the developer.",
         stats: [
             ["4780", "Clients contracted"],
             ["46", "Team members"],
@@ -56,11 +62,16 @@ export default function About({ milestones, team }: { milestones: Milestone[]; t
             <section className="bg-bg px-4 py-14">
                 <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
                     <Reveal>
-                        <h2 className="text-3xl font-extrabold leading-[1.5] text-secondary">{t.pledgeTitle}</h2>
+                        <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[11px] font-extrabold text-secondary">
+                            {t.pledgeLabel}
+                        </span>
+                        <h2 className="mt-4 text-3xl font-extrabold leading-[1.5] text-secondary">{t.pledgeTitle}</h2>
+                        <span className="mt-5 block h-1 w-16 rounded-full bg-primary" aria-hidden />
                     </Reveal>
                     <Reveal delay={120}>
                         <p className="text-base leading-[1.95] text-muted">{t.pledge1}</p>
                         <p className="mt-4 text-base leading-[1.95] text-muted">{t.pledge2}</p>
+                        <p className="mt-4 text-base leading-[1.95] text-muted">{t.pledge3}</p>
                     </Reveal>
                 </div>
             </section>

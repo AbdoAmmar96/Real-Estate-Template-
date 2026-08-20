@@ -285,6 +285,21 @@ class DemoContent
                 ? ['أقل من 3 مليون', '3 – 6 مليون', '6 – 12 مليون', 'أكثر من 12 مليون']
                 : ['Under 3M', '3 – 6M', '6 – 12M', 'Over 12M'],
 
+            'steps' => [
+                ['title' => $ar ? 'بنراجع طلبك' : 'We review your request', 'text' => $ar ? 'مستشار بيقرا احتياجك وميزانيتك ويجهّز قائمة مبدئية قبل ما يكلّمك.' : 'An advisor reads your needs and budget and prepares a shortlist before calling.'],
+                ['title' => $ar ? 'مكالمة في ساعتين عمل' : 'A call within two working hours', 'text' => $ar ? 'مكالمة قصيرة نتأكد فيها من التفاصيل ونرشّح 3 وحدات كحد أقصى.' : 'A short call to confirm details and shortlist three units at most.'],
+                ['title' => $ar ? 'معاينة مرتبة' : 'An organised viewing', 'text' => $ar ? 'بنجدول الزيارات في يوم واحد، والمواصلات علينا.' : 'We schedule the visits in one day, with transport on us.'],
+            ],
+
+            'faq' => [
+                ['q' => $ar ? 'هل فيه عمولة على الشراء؟' : 'Is there a buying commission?', 'a' => $ar ? 'لأ. عمولتنا بتيجي من المطوّر، والسعر اللي بتشتري بيه هو نفس سعر المطوّر المعلن — من غير أي زيادة عليك.' : 'No. Our commission comes from the developer, and the price you pay is the developer\'s published price — with nothing added on top.'],
+                ['q' => $ar ? 'ممكن أعاين قبل ما أحجز؟' : 'Can I view before booking?', 'a' => $ar ? 'أكيد. بنرتّب معاينة على الأرض لحد ثلاث وحدات في يوم واحد، والمواصلات من عندنا.' : 'Of course. We arrange on-site viewings for up to three units in one day, with transport on us.'],
+                ['q' => $ar ? 'بتشتغلوا في مناطق إيه؟' : 'Which areas do you cover?', 'a' => $ar ? 'القاهرة الجديدة والعاصمة الإدارية والإسكندرية بشكل أساسي، وبنغطي الساحل الشمالي والشيخ زايد كمان.' : 'Mainly New Cairo, the New Capital and Alexandria, and we also cover the North Coast and Sheikh Zayed.'],
+                ['q' => $ar ? 'بتراجعوا الأوراق ولا لأ؟' : 'Do you review the paperwork?', 'a' => $ar ? 'أي وحدة بتدخل قائمتنا بعد مراجعة التسجيل والرخصة، وبعد التعاقد محامي المنصة بيحضر معاك.' : 'Every unit enters our list after registration and licence checks, and our lawyer attends the contract with you.'],
+                ['q' => $ar ? 'لو مغيّرتش رأيي بعد الطلب؟' : 'What if I change my mind after requesting?', 'a' => $ar ? 'مفيش أي التزام. الطلب مجرد بداية محادثة، وتقدر توقفها في أي وقت من غير أي رسوم.' : 'There is no obligation. The request is just the start of a conversation and you can stop it any time at no cost.'],
+                ['q' => $ar ? 'بتتعاملوا مع الإيجار برضه؟' : 'Do you handle rentals too?', 'a' => $ar ? 'أيوه، سكني وإداري. اختار «إيجار» في البحث أو اكتبها في تفاصيل الطلب.' : 'Yes, residential and commercial. Pick «Rent» in the search or mention it in your request details.'],
+            ],
+
             'offices' => [
                 ['title' => $ar ? 'المقر الرئيسي' : 'Head office', 'text' => $ar ? 'التجمع الخامس، شارع التسعين الشمالي، مبنى B14 — الدور الرابع' : 'Fifth Settlement, North 90th St., Building B14 — 4th floor'],
                 ['title' => $ar ? 'فرع العاصمة' : 'Capital branch', 'text' => $ar ? 'الحي المالي، برج T7' : 'Financial district, Tower T7'],

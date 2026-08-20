@@ -84,4 +84,6 @@ export interface ContactOptions {
     areas: string[];
     budgets: string[];
     offices: { title: string; text: string }[];
+    steps: { title: string; text: string }[];
+    faq: { q: string; a: string }[];
 }

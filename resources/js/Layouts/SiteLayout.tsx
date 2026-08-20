@@ -183,7 +183,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             {/* ------------------------------ Footer (داكن — زي التصميم) ------------------------------ */}
             <footer className="bg-bg-dark">
                 <div className="mx-auto max-w-7xl px-4 py-12">
-                    <div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
+                    <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1.2fr]">
                         <div>
                             <div className="flex items-center gap-3">
                                 {branding.logo_path && (
@@ -230,25 +230,18 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                         <div className="flex flex-col gap-3">
                             <span className="text-[13px] font-extrabold text-text-dark">{ar ? "تواصل" : "Contact"}</span>
                             {contact.phone && (
-                                <a href={`tel:${contact.phone}`} dir="ltr" className="text-start text-sm text-white/55 transition hover:text-primary">
-                                    {contact.phone}
+                                <a href={`tel:${contact.phone}`} className="text-sm text-white/55 transition hover:text-primary">
+                                    <span dir="ltr">{contact.phone}</span>
                                 </a>
                             )}
                             {contact.email && (
-                                <a href={`mailto:${contact.email}`} dir="ltr" className="text-start text-sm text-white/55 transition hover:text-primary">
-                                    {contact.email}
+                                <a href={`mailto:${contact.email}`} className="text-sm text-white/55 transition hover:text-primary">
+                                    <span dir="ltr">{contact.email}</span>
                                 </a>
                             )}
                             {contact.address && <span className="text-sm leading-relaxed text-white/55">{contact.address}</span>}
                         </div>
 
-                        <div className="flex flex-col gap-3">
-                            <span className="text-[13px] font-extrabold text-text-dark">{ar ? "مواعيد العمل" : "Working hours"}</span>
-                            <span className="text-sm text-white/55">{ar ? "السبت – الخميس" : "Saturday – Thursday"}</span>
-                            <span className="text-sm text-white/55" dir="ltr">
-                                10:00 – 20:00
-                            </span>
-                        </div>
                     </div>
 
                     {/* سطر الحقوق الإلزامي — شريك الأعمال (لا يُحذف من أي موقع خارج من الإنجن) */}
