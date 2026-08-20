@@ -10,18 +10,37 @@ const quickLinks = [
     { href: "/admin/settings/social", label: "السوشيال ميديا", desc: "روابط منصات التواصل", icon: Share2 },
 ];
 
-const phases = [
-    { name: "المرحلة 1 — التأسيس + Theme Engine", done: true },
-    { name: "المرحلة 2 — Media Manager + المنيوهات + الأدوار", done: false },
-    { name: "المرحلة 3 — Block Builder + أنماط الهيرو", done: false },
-    { name: "المرحلة 4 — العقارات والكمبوندات والمطوّرون والمناطق", done: false },
+/**
+ * خريطة بناء الإنجن. الكارت بيختفي لوحده أول ما كل المراحل تخلص،
+ * فمحدش محتاج يفتكر يشيله — عدّل الحالة هنا وبس.
+ */
+type Phase = { name: string; status: "done" | "partial" | "todo"; note?: string };
+
+const phases: Phase[] = [
+    { name: "المرحلة 1 — التأسيس + Theme Engine", status: "done" },
+    {
+        name: "المرحلة 2 — Media Manager + المنيوهات + الأدوار",
+        status: "partial",
+        note: "الأدوار خلصت · فاضل مكتبة الميديا وبناء المنيوهات",
+    },
+    { name: "المرحلة 3 — Block Builder + أنماط الهيرو", status: "todo" },
+    { name: "المرحلة 4 — العقارات والكمبوندات والمطوّرون والمناطق", status: "done" },
+    { name: "المرحلة 5 — المستخدمون والطلبات والمدونة", status: "done" },
 ];
 
+const dotStyles: Record<Phase["status"], string> = {
+    done: "bg-success",
+    partial: "bg-amber-400",
+    todo: "bg-gray-300",
+};
+
 export default function Dashboard() {
+    const pending = phases.filter((p) => p.status !== "done").length;
+
     return (
         <AdminLayout title="لوحة التحكم">
             <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2">
+                <div className={pending ? "lg:col-span-2" : "lg:col-span-3"}>
                     <Card title="روابط سريعة">
                         <div className="grid gap-4 sm:grid-cols-2">
                             {quickLinks.map(({ href, label, desc, icon: Icon }) => (
@@ -46,18 +65,23 @@ export default function Dashboard() {
                     </Card>
                 </div>
 
-                <Card title="حالة البناء">
-                    <ul className="flex flex-col gap-3">
-                        {phases.map((p) => (
-                            <li key={p.name} className="flex items-center gap-3 text-sm">
-                                <span
-                                    className={`h-2.5 w-2.5 shrink-0 rounded-full ${p.done ? "bg-success" : "bg-gray-300"}`}
-                                />
-                                <span className={p.done ? "font-bold text-gray-900" : "text-gray-500"}>{p.name}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </Card>
+                {pending > 0 && (
+                    <Card title="حالة البناء">
+                        <ul className="flex flex-col gap-3">
+                            {phases.map((p) => (
+                                <li key={p.name} className="flex gap-3 text-sm">
+                                    <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${dotStyles[p.status]}`} />
+                                    <span className="flex flex-col gap-1">
+                                        <span className={p.status === "done" ? "font-bold text-gray-900" : "text-gray-500"}>
+                                            {p.name}
+                                        </span>
+                                        {p.note && <span className="text-xs text-gray-400">{p.note}</span>}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Card>
+                )}
             </div>
         </AdminLayout>
     );
