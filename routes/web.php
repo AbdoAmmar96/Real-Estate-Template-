@@ -13,18 +13,18 @@ Route::prefix('{locale}')
     ->group(function () {
 
         Route::get('/', fn (string $locale) => Inertia::render('Site/Home', [
-            'latestProperties' => array_slice(\App\Support\DemoContent::properties($locale), 0, 6),
-            'latestCompounds'  => array_slice(\App\Support\DemoContent::compounds($locale), 0, 3),
-            'areas'            => \App\Support\DemoContent::areas($locale),
-            'searchOptions'    => \App\Support\DemoContent::searchOptions($locale),
+            'latestProperties' => \App\Support\Catalog::properties($locale, 6),
+            'latestCompounds'  => \App\Support\Catalog::compounds($locale, 3),
+            'areas'            => \App\Support\Catalog::areas($locale, 3),
+            'searchOptions'    => \App\Support\Catalog::searchOptions($locale),
         ]))->name('home');
 
         Route::get('/properties', fn (string $locale) => Inertia::render('Site/Properties', [
-            'properties' => \App\Support\DemoContent::properties($locale),
+            'properties' => \App\Support\Catalog::properties($locale),
         ]))->name('properties');
 
         Route::get('/compounds', fn (string $locale) => Inertia::render('Site/Compounds', [
-            'compounds' => \App\Support\DemoContent::compounds($locale),
+            'compounds' => \App\Support\Catalog::compounds($locale),
         ]))->name('compounds');
 
         Route::get('/about', fn (string $locale) => Inertia::render('Site/About', [

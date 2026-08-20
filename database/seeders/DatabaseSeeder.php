@@ -11,8 +11,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CoreDatabaseSeeder::class,
-
-            // ← سيدرز موديولات الدومين بتتضاف هنا في المرحلة 4
+            CatalogSeeder::class,
         ]);
     }
 }

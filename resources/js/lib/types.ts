@@ -87,3 +87,21 @@ export interface ContactOptions {
     steps: { title: string; text: string }[];
     faq: { q: string; a: string }[];
 }
+
+/** حقل في فورم الريسورس العام */
+export interface ResourceField {
+    name: string;
+    label: string;
+    type: "text" | "number" | "textarea" | "select" | "toggle" | "image";
+    hint?: string;
+    required?: boolean;
+    options?: { value: string; label: string }[];
+}
+
+/** سكيما الريسورس الجاية من الكنترولر */
+export interface ResourceSchema {
+    key: string;
+    labels: { plural: string; singular: string };
+    columns: Record<string, string>;
+    fields: ResourceField[];
+}

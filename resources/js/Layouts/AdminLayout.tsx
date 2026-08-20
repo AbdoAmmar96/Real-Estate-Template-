@@ -5,6 +5,7 @@ import {
     Image as ImageIcon,
     LayoutDashboard,
     LogOut,
+    MapPin,
     Palette,
     Settings,
     Share2,
@@ -22,8 +23,16 @@ const settingsNav = [
     { href: "/admin/settings/social", label: "السوشيال ميديا", icon: Share2 },
 ];
 
-// موديولات الدومين — بتتفعّل تباعًا مع المراحل الجاية
-const comingSoon = ["العقارات", "الكمبوندات", "المطوّرون", "المناطق", "الليدز", "المدونة"];
+// موديولات الدومين الشغالة
+const moduleNav = [
+    { href: "/admin/properties", label: "العقارات", icon: Building2 },
+    { href: "/admin/compounds", label: "الكمبوندات", icon: Building2 },
+    { href: "/admin/developers", label: "المطوّرون", icon: Users },
+    { href: "/admin/locations", label: "المناطق", icon: MapPin },
+];
+
+// لسه في الطريق
+const comingSoon = ["الليدز", "المدونة"];
 
 export default function AdminLayout({ title, children }: { title: string; children: ReactNode }) {
     const { auth } = usePage<SharedProps>().props;
@@ -61,6 +70,9 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     {settingsNav.map((s) => item(s.href, s.label, s.icon, path.startsWith(s.href)))}
 
                     <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">الموديولات</div>
+                    {moduleNav.map((m) => item(m.href, m.label, m.icon, path.startsWith(m.href)))}
+
+                    <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">قريبًا</div>
                     {comingSoon.map((label) => (
                         <span
                             key={label}
