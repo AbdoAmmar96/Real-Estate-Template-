@@ -45,7 +45,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
     return (
         <div dir="rtl" className="flex min-h-screen bg-gray-100 font-sans text-gray-900">
             {/* ------------------------------ Sidebar ------------------------------ */}
-            <aside className="fixed inset-y-0 right-0 z-40 flex w-64 flex-col bg-bg-dark p-4">
+            <aside className="fixed inset-y-0 start-0 z-40 flex w-64 flex-col bg-bg-dark p-4">
                 <div className="mb-8 flex items-center gap-2 px-2 pt-2">
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary font-extrabold text-primary-fg">
                         BP
@@ -53,7 +53,8 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     <span className="text-sm font-extrabold text-white">إنجن شريك الأعمال</span>
                 </div>
 
-                <nav className="flex flex-col gap-1">
+                {/* min-h-0 مهم: من غيره الفلكس مبيسمحش للعنصر يقل عن محتواه فالسكرول مبيشتغلش */}
+                <nav className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1">
                     {item("/admin", "لوحة التحكم", LayoutDashboard, path === "/admin")}
 
                     <div className="mt-4 mb-1 px-4 text-[11px] font-extrabold tracking-wide text-gray-500">الإعدادات</div>
@@ -72,7 +73,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     ))}
                 </nav>
 
-                <div className="mt-auto border-t border-white/10 pt-4">
+                <div className="mt-4 shrink-0 border-t border-white/10 pt-4">
                     <div className="px-2 text-xs text-gray-400">{auth.user?.name}</div>
                     <Link
                         href="/admin/logout"
@@ -87,7 +88,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
             </aside>
 
             {/* ------------------------------ Content ------------------------------ */}
-            <div className="flex-1 pe-64">
+            <div className="flex-1 ps-64">
                 <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white/90 px-8 backdrop-blur">
                     <h1 className="text-lg font-extrabold">{title}</h1>
                     <a href="/ar" target="_blank" className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-secondary">
