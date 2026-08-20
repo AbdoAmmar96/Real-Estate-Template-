@@ -131,3 +131,32 @@ test('sitemap lists the detail pages', async ({ page }) => {
     expect(xml).toMatch(/<loc>[^<]*\/ar\/properties\/[^<]+<\/loc>/);
     expect(xml).toMatch(/<loc>[^<]*\/ar\/compounds\/[^<]+<\/loc>/);
 });
+
+/**
+ * مساحة العميل. الحالات اللي بتغيّر بيانات متغطّاة في tests/Feature/RolePermissionsTest.php —
+ * هنا بنتأكد بس إن الشاشات بترندر والحراسة شغّالة في المتصفح الحقيقي.
+ */
+for (const path of ['/ar/login', '/ar/register']) {
+    test(`${path} renders without console errors`, async ({ page }) => {
+        const consoleErrors: string[] = [];
+        page.on('console', (msg) => {
+            if (msg.type() === 'error') consoleErrors.push(msg.text());
+        });
+
+        const response = await page.goto(path, { waitUntil: 'networkidle' });
+
+        expect(response?.status()).toBe(200);
+        await expect(page.locator('form')).toBeVisible();
+        expect(consoleErrors).toEqual([]);
+    });
+}
+
+test('guest is sent to the site login, not the admin one', async ({ page }) => {
+    await page.goto('/ar/account');
+    await expect(page).toHaveURL(/\/ar\/login$/);
+});
+
+test('guest is sent to the admin login for the dashboard', async ({ page }) => {
+    await page.goto('/admin/properties');
+    await expect(page).toHaveURL(/\/admin\/login$/);
+});
