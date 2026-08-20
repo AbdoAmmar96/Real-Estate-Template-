@@ -26,35 +26,41 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('login.store');
     });
 
-    // مسجّلين بدور admin
-    Route::middleware(['auth', 'role:admin'])->group(function () {
+    // أي حد مسجّل بيدخل اللوحة، وكل قسم بعد كده على صلاحيته
+    Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
 
-        Route::get('settings/{group}', [SettingsController::class, 'edit'])->name('settings.edit');
-        Route::put('settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
+        Route::middleware('permission:manage settings')->group(function () {
+            Route::get('settings/{group}', [SettingsController::class, 'edit'])->name('settings.edit');
+            Route::put('settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
+        });
 
         // مكتبة الميديا — الشاشة + JSON للـ MediaPicker
-        Route::get('media',           [MediaController::class, 'index'])->name('media.index');
-        Route::get('media/files',     [MediaController::class, 'list'])->name('media.list');
-        Route::post('media/files',    [MediaController::class, 'store'])->name('media.store');
-        Route::delete('media/files',  [MediaController::class, 'destroy'])->name('media.destroy');
+        Route::middleware('permission:manage content')->group(function () {
+            Route::get('media',           [MediaController::class, 'index'])->name('media.index');
+            Route::get('media/files',     [MediaController::class, 'list'])->name('media.list');
+            Route::post('media/files',    [MediaController::class, 'store'])->name('media.store');
+            Route::delete('media/files',  [MediaController::class, 'destroy'])->name('media.destroy');
 
-        // قوائم الهيدر والفوتر
-        Route::get('menus',           [MenuAdminController::class, 'index'])->name('menus.index');
-        Route::get('menus/create',    [MenuAdminController::class, 'create'])->name('menus.create');
-        Route::post('menus',          [MenuAdminController::class, 'store'])->name('menus.store');
-        Route::get('menus/{id}/edit', [MenuAdminController::class, 'edit'])->name('menus.edit');
-        Route::put('menus/{id}',      [MenuAdminController::class, 'update'])->name('menus.update');
-        Route::delete('menus/{id}',   [MenuAdminController::class, 'destroy'])->name('menus.destroy');
+            // قوائم الهيدر والفوتر
+            Route::get('menus',           [MenuAdminController::class, 'index'])->name('menus.index');
+            Route::get('menus/create',    [MenuAdminController::class, 'create'])->name('menus.create');
+            Route::post('menus',          [MenuAdminController::class, 'store'])->name('menus.store');
+            Route::get('menus/{id}/edit', [MenuAdminController::class, 'edit'])->name('menus.edit');
+            Route::put('menus/{id}',      [MenuAdminController::class, 'update'])->name('menus.update');
+            Route::delete('menus/{id}',   [MenuAdminController::class, 'destroy'])->name('menus.destroy');
+        });
 
         // إدارة مستخدمي اللوحة (إضافة/حذف حساب وتغيير كلمة المرور والدور)
-        Route::get('users',           [UserAdminController::class, 'index'])->name('users.index');
-        Route::get('users/create',    [UserAdminController::class, 'create'])->name('users.create');
-        Route::post('users',          [UserAdminController::class, 'store'])->name('users.store');
-        Route::get('users/{id}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
-        Route::put('users/{id}',      [UserAdminController::class, 'update'])->name('users.update');
-        Route::delete('users/{id}',   [UserAdminController::class, 'destroy'])->name('users.destroy');
+        Route::middleware('permission:manage users')->group(function () {
+            Route::get('users',           [UserAdminController::class, 'index'])->name('users.index');
+            Route::get('users/create',    [UserAdminController::class, 'create'])->name('users.create');
+            Route::post('users',          [UserAdminController::class, 'store'])->name('users.store');
+            Route::get('users/{id}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
+            Route::put('users/{id}',      [UserAdminController::class, 'update'])->name('users.update');
+            Route::delete('users/{id}',   [UserAdminController::class, 'destroy'])->name('users.destroy');
+        });
 
-        Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
     });
 });

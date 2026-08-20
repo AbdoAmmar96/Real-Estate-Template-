@@ -10,7 +10,7 @@ use Modules\Properties\Http\Controllers\PropertyAdminController;
  |----------------------------------------------------------------------
  */
 
-Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'permission:manage catalog'])->group(function () {
     Route::get('properties',                [PropertyAdminController::class, 'index'])->name('properties.index');
     Route::get('properties/create',         [PropertyAdminController::class, 'create'])->name('properties.create');
     Route::post('properties',               [PropertyAdminController::class, 'store'])->name('properties.store');

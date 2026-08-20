@@ -30,7 +30,10 @@ class HandleInertiaRequests extends Middleware
             'menu'     => fn () => \Modules\Core\Models\MenuItem::nav(app()->getLocale()),
 
             'auth' => [
-                'user' => $request->user()?->only('id', 'name', 'email'),
+                // can = صلاحيات المستخدم، عشان اللوحة تخفي اللي مش مسموح له بيه
+                'user' => $request->user() ? $request->user()->only('id', 'name', 'email') + [
+                    'can' => $request->user()->getAllPermissions()->pluck('name')->all(),
+                ] : null,
             ],
 
             'flash' => [

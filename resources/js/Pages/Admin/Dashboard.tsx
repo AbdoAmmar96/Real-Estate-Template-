@@ -1,13 +1,18 @@
-import { Link } from "@inertiajs/react";
-import { ArrowLeft, Palette, Settings, Share2, Users } from "lucide-react";
+import { Link, usePage } from "@inertiajs/react";
+import { ArrowLeft, Building2, Inbox, Newspaper, Palette, Settings, Share2, Users } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Card } from "@/Components/admin/ui";
+import type { SharedProps } from "@/lib/types";
 
+// كل لينك وصلاحيته — نفس التحقق اللي على الراوت، عشان محدش يشوف لينك هياخد عليه 403
 const quickLinks = [
-    { href: "/admin/settings/theme", label: "الهوية والألوان", desc: "غيّر ألوان وخطوط الموقع كله لحظيًا", icon: Palette },
-    { href: "/admin/settings/general", label: "الإعدادات العامة", desc: "اسم المنصة والوصف التعريفي", icon: Settings },
-    { href: "/admin/settings/contact", label: "بيانات التواصل", desc: "الواتساب والتليفون والإيميل", icon: Users },
-    { href: "/admin/settings/social", label: "السوشيال ميديا", desc: "روابط منصات التواصل", icon: Share2 },
+    { href: "/admin/settings/theme", label: "الهوية والألوان", desc: "غيّر ألوان وخطوط الموقع كله لحظيًا", icon: Palette, perm: "manage settings" },
+    { href: "/admin/settings/general", label: "الإعدادات العامة", desc: "اسم المنصة والوصف التعريفي", icon: Settings, perm: "manage settings" },
+    { href: "/admin/settings/contact", label: "بيانات التواصل", desc: "الواتساب والتليفون والإيميل", icon: Users, perm: "manage settings" },
+    { href: "/admin/settings/social", label: "السوشيال ميديا", desc: "روابط منصات التواصل", icon: Share2, perm: "manage settings" },
+    { href: "/admin/properties", label: "العقارات", desc: "أضف وحدة أو عدّل بياناتها", icon: Building2, perm: "manage catalog" },
+    { href: "/admin/posts", label: "المدونة", desc: "اكتب مقال جديد أو عدّل مقال", icon: Newspaper, perm: "manage content" },
+    { href: "/admin/leads", label: "الطلبات", desc: "الطلبات الجاية من فورم الموقع", icon: Inbox, perm: "manage leads" },
 ];
 
 /**
@@ -18,12 +23,12 @@ type Phase = { name: string; status: "done" | "partial" | "todo"; note?: string 
 
 const phases: Phase[] = [
     { name: "المرحلة 1 — التأسيس + Theme Engine", status: "done" },
+    { name: "المرحلة 2 — Media Manager + المنيوهات + الأدوار", status: "done" },
     {
-        name: "المرحلة 2 — Media Manager + المنيوهات + الأدوار",
+        name: "المرحلة 3 — Block Builder + أنماط الهيرو",
         status: "partial",
-        note: "الأدوار خلصت · فاضل مكتبة الميديا وبناء المنيوهات",
+        note: "أنماط الهيرو خلصت · فاضل الـ Block Builder",
     },
-    { name: "المرحلة 3 — Block Builder + أنماط الهيرو", status: "todo" },
     { name: "المرحلة 4 — العقارات والكمبوندات والمطوّرون والمناطق", status: "done" },
     { name: "المرحلة 5 — المستخدمون والطلبات والمدونة", status: "done" },
 ];
@@ -35,15 +40,20 @@ const dotStyles: Record<Phase["status"], string> = {
 };
 
 export default function Dashboard() {
+    const { auth } = usePage<SharedProps>().props;
+    const can = auth.user?.can ?? [];
+
+    const links = quickLinks.filter((l) => can.includes(l.perm));
     const pending = phases.filter((p) => p.status !== "done").length;
 
     return (
         <AdminLayout title="لوحة التحكم">
             <div className="grid gap-6 lg:grid-cols-3">
                 <div className={pending ? "lg:col-span-2" : "lg:col-span-3"}>
+                    {links.length > 0 && (
                     <Card title="روابط سريعة">
                         <div className="grid gap-4 sm:grid-cols-2">
-                            {quickLinks.map(({ href, label, desc, icon: Icon }) => (
+                            {links.map(({ href, label, desc, icon: Icon }) => (
                                 <Link
                                     key={href}
                                     href={href}
@@ -63,6 +73,7 @@ export default function Dashboard() {
                             ))}
                         </div>
                     </Card>
+                    )}
                 </div>
 
                 {pending > 0 && (

@@ -4,6 +4,8 @@ export interface AuthUser {
     id: number;
     name: string;
     email: string;
+    /** صلاحيات المستخدم — بتحدد اللي بيظهر في سايدبار اللوحة */
+    can: string[];
 }
 
 /** لينك في قائمة الهيدر أو الفوتر — بيتدار من /admin/menus */

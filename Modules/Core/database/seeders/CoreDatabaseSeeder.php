@@ -10,6 +10,7 @@ class CoreDatabaseSeeder extends Seeder
     {
         $this->call([
             SettingsSeeder::class,
+            RolePermissionSeeder::class,
             AdminUserSeeder::class,
             MenuSeeder::class,
         ]);
