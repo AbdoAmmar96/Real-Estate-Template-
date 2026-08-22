@@ -36,7 +36,7 @@ class AddPropertyController extends Controller
         return Inertia::render('Site/AddProperty', [
             'options' => [
                 'types' => array_map(
-                    fn (string $type) => ['value' => $type, 'label' => $en ? (Property::TYPES[$type] ?? $type) : $type],
+                    fn (string $type) => ['value' => $type, 'label' => $en ? Property::TYPES[$type] : $type],
                     array_keys(Property::TYPES),
                 ),
                 'locations' => Location::where('is_active', true)->orderBy('sort')->orderBy('id')->get()

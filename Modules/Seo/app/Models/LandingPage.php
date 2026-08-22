@@ -127,7 +127,7 @@ class LandingPage extends Model
         return array_filter([
             'type' => $this->type ?? '',
             'purpose' => $this->purpose ?? '',
-            'location' => $this->location?->name ?? '',
+            'location' => $this->location->name ?? '',
         ], fn ($v) => $v !== '');
     }
 
