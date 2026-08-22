@@ -264,7 +264,7 @@ test('developer card opens the developer page', async ({ page }) => {
 
     await card.click();
     await page.waitForURL(`**${href}`, { timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'مشاريع المطوّر' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'مشاريع المطوّر', exact: true })).toBeVisible();
 });
 
 test('area card opens the area page', async ({ page }) => {
