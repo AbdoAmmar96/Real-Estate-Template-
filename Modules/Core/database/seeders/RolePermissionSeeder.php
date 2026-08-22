@@ -189,8 +189,6 @@ class RolePermissionSeeder extends Seeder
 
         $first?->syncRoles(['super_admin']);
 
-        if ($first) {
-            $this->command?->info("  {$first->email} اترقّى لسوبر أدمن (أول واحد بس)");
-        }
+        $first && $this->command->info("  {$first->email} اترقّى لسوبر أدمن (أول واحد بس)");
     }
 }
