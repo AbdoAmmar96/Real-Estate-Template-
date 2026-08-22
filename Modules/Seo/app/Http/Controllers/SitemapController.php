@@ -9,6 +9,7 @@ use Modules\Compounds\Models\Compound;
 use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Properties\Models\Property;
+use Modules\Seo\Models\LandingPage;
 
 /**
  * خريطة الموقع — بتتبني من الداتابيز مع نسخة لكل لغة و hreflang بينهم.
@@ -52,8 +53,19 @@ class SitemapController extends Controller
             ];
         }
 
+        // صفحات الهبوط البرمجية — الأولوية على قد عدد وحداتها:
+        // صفحة فيها ٤٠ وحدة تستاهل زحف أكتر من صفحة فيها وحدة
+        foreach (LandingPage::active()->orderByDesc('units_count')->get() as $landing) {
+            $urls[] = [
+                'path' => '/properties/'.$landing->slug,
+                'lastmod' => $landing->updated_at?->toAtomString(),
+                'changefreq' => 'weekly',
+                'priority' => $landing->units_count >= 10 ? '0.8' : '0.6',
+            ];
+        }
+
         // صفحات العرض — الوحدات بتتغيّر أكتر من المشاريع فأولويتها أعلى
-        foreach (Property::where('is_active', true)->whereNotNull('slug')->get() as $property) {
+        foreach (Property::published()->whereNotNull('slug')->get() as $property) {
             $urls[] = [
                 'path' => '/properties/'.$property->slug,
                 'lastmod' => $property->updated_at?->toAtomString(),
