@@ -123,6 +123,38 @@ test('property page carries its own canonical, hreflang and JSON-LD', async ({ p
     expect(types).toContain('BreadcrumbList');
 });
 
+test('link preview carries a wide image with its real dimensions', async ({ page }) => {
+    await page.goto('/ar', { waitUntil: 'networkidle' });
+
+    const attr = (sel: string) => page.locator(sel).getAttribute('content');
+    const [image, width, height, card] = await Promise.all([
+        attr('meta[property="og:image"]'),
+        attr('meta[property="og:image:width"]'),
+        attr('meta[property="og:image:height"]'),
+        attr('meta[name="twitter:card"]'),
+    ]);
+
+    // واتساب/فيسبوك بيقروا الرابط المطلق بس — النسبي بيتجاهل والمعاينة بتطلع من غير صورة
+    expect(image).toMatch(/^https?:\/\//);
+    expect(card).toBe('summary_large_image');
+    expect(Number(width)).toBeGreaterThanOrEqual(600);
+
+    // الأبعاد لازم تطابق الملف فعلًا — رقم مكتوب بالغلط بيخلي الكارت مقصوص أو مترفوض
+    const response = await page.request.get(image!);
+    expect(response.status()).toBe(200);
+    const measured = await page.evaluate(
+        (src) =>
+            new Promise<[number, number]>((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve([img.naturalWidth, img.naturalHeight]);
+                img.onerror = reject;
+                img.src = src;
+            }),
+        image!
+    );
+    expect(measured).toEqual([Number(width), Number(height)]);
+});
+
 test('sitemap lists the detail pages', async ({ page }) => {
     const response = await page.goto('/sitemap.xml');
     expect(response?.status()).toBe(200);

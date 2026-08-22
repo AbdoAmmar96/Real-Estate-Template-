@@ -65,6 +65,8 @@ export interface Property {
     size: number;
     ref: string;
     image: string;
+    /** مطوّر الوحدة، وإلا مطوّر الكمبوند — فاضي لو الاتنين مش متحددين */
+    developer: string;
 }
 
 /** العقار كامل في صفحة التفاصيل */
@@ -147,6 +149,20 @@ export interface TeamMember {
     name: string;
     role: string;
     image: string;
+}
+
+/** مطوّر معروض في صفحة «من نحن» */
+export interface DeveloperCard {
+    id: number;
+    name: string;
+    /** نبذة المطوّر — بتفضل فاضية لحد ما تتكتب من الداشبورد */
+    about: string;
+    /** مسار اللوجو — فاضي يعني ارسم أول حرف بدله */
+    logo: string;
+    /** عدد المشاريع المنشورة */
+    compounds: number;
+    /** رابط مشاريع المطوّر — /{locale}/compounds?q=... */
+    url: string;
 }
 
 /** خيارات فورم "اتصل بنا" */
