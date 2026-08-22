@@ -94,9 +94,15 @@ class AddPropertyController extends Controller
         $images = $this->storeImages($request->file('images') ?? []);
         $user = $request->user();
 
-        // الوسيط/الشركة بتبقى مالكة وحدتها من أول لحظة — الزائر لأ،
-        // فوحدته بتبقى تحت إدارة المنصّة لحد ما الأدمن يوزّعها
-        $owner = $user?->can('manage listings') ? $user->id : null;
+        // العميل اللي عرض وحدة بقى «معلن»: من غير كده الوحدة بتتسجّل
+        // باسمه ومايقدرش يتابعها ولا يعدّلها من حسابه.
+        if ($user?->hasRole('customer')) {
+            $user->syncRoles(['lister']);
+        }
+
+        // الوسيط/الشركة/المعلن بيبقوا ملّاك وحدتهم من أول لحظة — الزائر
+        // اللي مش مسجّل لأ، فوحدته تحت إدارة المنصّة لحد ما الأدمن يوزّعها
+        $owner = $user?->ownsListings() ? $user->id : null;
 
         $property = Property::create([
             'title' => $data['title'],
@@ -129,7 +135,7 @@ class AddPropertyController extends Controller
             'status' => 'new',
             'property_id' => $property->id,
             'owner_id' => $owner,
-            'user_id' => $user && ! $user->isStaff() ? $user->id : null,
+            'user_id' => $user && ! $user->ownsListings() ? $user->id : null,
         ]);
 
         return back()->with('success', $en
