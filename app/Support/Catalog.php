@@ -120,8 +120,10 @@ class Catalog
     {
         $rows = Developer::query()
             ->where('is_active', true)
+            // whereHas مش having: withCount بيطلّع subquery مش aggregate،
+            // و HAVING عليه بيرمي "non-aggregate query" في SQLite
             ->withCount(['compounds' => fn ($q) => $q->where('is_active', true)])
-            ->having('compounds_count', '>', 0)
+            ->whereHas('compounds', fn ($q) => $q->where('is_active', true))
             ->orderBy('sort')->orderBy('id')
             ->when($limit, fn ($q) => $q->limit($limit))
             ->get();
