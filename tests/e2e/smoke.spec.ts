@@ -192,3 +192,104 @@ test('guest is sent to the admin login for the dashboard', async ({ page }) => {
     await page.goto('/admin/properties');
     await expect(page).toHaveURL(/\/admin\/login$/);
 });
+
+/**
+ * أنماط خلفية الهيرو. النمط بيتغيّر من الداشبورد (theme.hero_variant)، ولو الفيديو
+ * مش شغّال السبب شبه دايمًا إن النمط مش "video" — مش إن الملف مكسور.
+ * التست ده بيثبّت اللي كل نمط بيعمله فعلًا.
+ */
+test('hero video actually plays when the variant is video', async ({ page }) => {
+    await page.goto('/ar', { waitUntil: 'networkidle' });
+
+    // النمط بيتقرا من الإعدادات مش من وجود العنصر — وإلا التست يتخطّى نفسه
+    // بالظبط لما الفيديو يختفي، وهي الحالة اللي المفروض يمسكها
+    const variant = await page.evaluate(
+        () => JSON.parse(document.getElementById('app')!.dataset.page!).props.settings.theme.hero_variant
+    );
+    test.skip(variant !== 'video', `نمط الهيرو = ${variant}، فالفيديو مش مفروض يشتغل`);
+
+    const video = page.locator('section video').first();
+    await expect(video).toHaveCount(1);
+
+    // مش بنكتفي بوجود العنصر: لازم يتحمّل ويمشي فعلًا
+    await expect
+        .poll(async () => video.evaluate((el: HTMLVideoElement) => el.readyState), { timeout: 15_000 })
+        .toBeGreaterThanOrEqual(3);
+
+    const state = await video.evaluate((el: HTMLVideoElement) => ({
+        paused: el.paused,
+        error: el.error?.message ?? null,
+        width: el.videoWidth,
+    }));
+
+    expect(state.error).toBeNull();
+    expect(state.paused).toBe(false);
+    expect(state.width).toBeGreaterThan(0);
+});
+
+test('the hero background image comes from settings, not a hardcoded path', async ({ page }) => {
+    await page.goto('/ar', { waitUntil: 'networkidle' });
+
+    const src = await page.locator('section img').first().getAttribute('src');
+    const settings = await page.evaluate(
+        () => JSON.parse(document.getElementById('app')!.dataset.page!).props.settings.branding
+    );
+
+    expect(settings.hero_bg_image).toBeTruthy();
+    expect(src).toBe(settings.hero_bg_image);
+});
+
+/** أقسام المطوّرين والمناطق والعقارات التجارية */
+for (const path of ['/ar/developers', '/ar/areas', '/ar/properties/commercial', '/ar/properties/residential']) {
+    test(`${path} renders without console errors`, async ({ page }) => {
+        const consoleErrors: string[] = [];
+        page.on('console', (msg) => {
+            if (msg.type() === 'error') consoleErrors.push(msg.text());
+        });
+
+        const response = await page.goto(path, { waitUntil: 'networkidle' });
+
+        expect(response?.status()).toBe(200);
+        await expect(page.locator('h1')).not.toBeEmpty();
+        expect(consoleErrors).toEqual([]);
+    });
+}
+
+test('developer card opens the developer page', async ({ page }) => {
+    await page.goto('/ar/developers', { waitUntil: 'networkidle' });
+
+    const card = page.locator('a[href*="/ar/developers/"]').first();
+    const href = await card.getAttribute('href');
+    expect(href).toMatch(/^\/ar\/developers\/.+/);
+
+    await card.click();
+    await page.waitForURL(`**${href}`, { timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'مشاريع المطوّر' })).toBeVisible();
+});
+
+test('area card opens the area page', async ({ page }) => {
+    await page.goto('/ar/areas', { waitUntil: 'networkidle' });
+
+    const card = page.locator('a[href*="/ar/areas/"]').first();
+    const href = await card.getAttribute('href');
+    expect(href).toMatch(/^\/ar\/areas\/.+/);
+
+    await card.click();
+    await page.waitForURL(`**${href}`, { timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'مشاريع في المنطقة' })).toBeVisible();
+});
+
+test('the commercial section only lists commercial types', async ({ page }) => {
+    // /properties/commercial لازم يوصل للقسم مش لصفحة وحدة اسمها commercial
+    const response = await page.goto('/ar/properties/commercial', { waitUntil: 'networkidle' });
+    expect(response?.status()).toBe(200);
+
+    const types = await page.evaluate(() => {
+        const el = document.getElementById('app');
+        const page = JSON.parse(el?.getAttribute('data-page') || '{}');
+        return (page.props?.properties ?? []).map((p: { category: string }) => p.category);
+    });
+
+    expect(types.length).toBeGreaterThan(0);
+    expect([...new Set(types)]).toEqual(['commercial']);
+});
