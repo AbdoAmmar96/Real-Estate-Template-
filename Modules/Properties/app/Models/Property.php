@@ -2,6 +2,7 @@
 
 namespace Modules\Properties\Models;
 
+use App\Support\LogsActivity;
 use App\Models\User;
 use App\Support\Bilingual;
 use App\Support\SharedSlugSpace;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Modules\Compounds\Models\Compound;
 use Modules\Developers\Models\Developer;
 use Modules\Leads\Models\Lead;
+use Modules\Marketing\Models\FeaturedAd;
 use Modules\Locations\Models\Location;
 
 /**
@@ -69,7 +71,7 @@ use Modules\Locations\Models\Location;
  */
 class Property extends Model
 {
-    use Bilingual, Sluggable;
+    use Bilingual, LogsActivity, Sluggable;
 
     /**
      * أنواع العقارات — مصدر واحد للأدمن ولفلتر البحث في الهيرو،
@@ -278,6 +280,16 @@ class Property extends Model
         return $this->hasMany(Lead::class);
     }
 
+    /**
+     * المساحات الإعلانية على الوحدة دي
+     *
+     * @return HasMany<FeaturedAd, $this>
+     */
+    public function featuredAds(): HasMany
+    {
+        return $this->hasMany(FeaturedAd::class);
+    }
+
     /** الحسابات اللي حافظة الوحدة */
     public function favoritedBy(): BelongsToMany
     {
@@ -294,6 +306,19 @@ class Property extends Model
     public static function recordView(int $id): void
     {
         DB::table('properties')->where('id', $id)->increment('views_count');
+    }
+
+    /**
+     * تسجيل زيارة في «شوهدت مؤخرًا» للحساب المسجّل.
+     * upsert مش insert: الزيارة التانية بتحدّث الوقت مش بتكرّر الصف.
+     */
+    public static function recordVisit(int $userId, int $propertyId): void
+    {
+        DB::table('recently_viewed')->upsert(
+            [['user_id' => $userId, 'property_id' => $propertyId, 'viewed_at' => now()]],
+            ['user_id', 'property_id'],
+            ['viewed_at'],
+        );
     }
 
     /** كل صور العرض بترتيبها — الرئيسية الأول */
