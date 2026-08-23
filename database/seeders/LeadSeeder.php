@@ -24,7 +24,7 @@ class LeadSeeder extends Seeder
                 'name' => 'Nour Hassan', 'phone' => '01112223344', 'email' => 'nour.hassan@example.com',
                 'area' => 'العاصمة الإدارية', 'budget' => '2 – 4 مليون', 'source' => 'hero', 'status' => 'contacted',
                 'message' => 'مهتمة بوحدات R7 — محتاجة أعرف أنظمة السداد المتاحة.',
-                'notes' => 'اتكلمنا يوم الاتنين — طلبت عروض R7 بالإيميل. متابعة الأسبوع الجاي.',
+                'notes' => 'تحدّثنا يوم الاثنين — طلب عروض R7 بالبريد. متابعة الأسبوع القادم.',
                 'days' => 2,
             ],
             [
@@ -38,7 +38,7 @@ class LeadSeeder extends Seeder
                 'name' => 'هدى الشناوي', 'phone' => '01098765432', 'email' => 'hoda.shenawy@example.com',
                 'area' => 'الشيخ زايد', 'budget' => 'أكثر من 10 مليون', 'source' => 'contact', 'status' => 'won',
                 'message' => 'فيلا في زايد الجديدة — عندي استعداد أدفع كاش لو في خصم.',
-                'notes' => 'اتعاقدت على فيلا في بادية. عمولة محصّلة.',
+                'notes' => 'تعاقد على فيلا في بادية. عمولة محصّلة.',
                 'days' => 12,
             ],
             [
