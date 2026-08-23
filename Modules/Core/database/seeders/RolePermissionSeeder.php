@@ -66,7 +66,7 @@ class RolePermissionSeeder extends Seeder
         ],
         'data_entry' => [
             'label' => 'مدخل بيانات',
-            'note' => 'يدخل ويعدّل العقارات والمشاريع — من غير نشر ولا حذف',
+            'note' => 'يدخل ويعدّل العقارات والمشاريع — دون نشر ولا حذف',
             'staff' => true,
             'permissions' => ['manage catalog', 'manage media'],
         ],

@@ -112,7 +112,7 @@ class FeaturedAdAdminController extends ResourceController
                 'hint' => 'يُعرض لصاحب الطلب'],
 
             ['name' => 'is_active', 'label' => 'مفعّلة', 'type' => 'toggle',
-                'hint' => 'إيقاف مؤقت من غير ما تغيّر التواريخ'],
+                'hint' => 'إيقاف مؤقت دون تغيير التواريخ'],
         ];
     }
 

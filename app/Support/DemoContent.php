@@ -219,7 +219,7 @@ class DemoContent
             ],
             'XH-1005' => [
                 'desc' => $ar
-                    ? "توين هاوس 280م² في العاصمة الإدارية باستلام فوري — من غير انتظار تسليم.\n٤ غرف نوم، حديقة أمامية وخلفية، والتشطيب نص تشطيب مع إمكانية التسليم كامل بفرق سعر."
+                    ? "توين هاوس 280م² في العاصمة الإدارية باستلام فوري — دون انتظار تسليم.\n٤ غرف نوم، حديقة أمامية وخلفية، والتشطيب نص تشطيب مع إمكانية التسليم كامل بفرق سعر."
                     : "A 280m² twin house in the New Capital with immediate handover — no waiting for delivery.\n4 bedrooms, front and back gardens, semi-finished with the option to be fully finished for a price difference.",
                 'features' => $ar
                     ? "استلام فوري\nحديقة أمامية وخلفية\n٤ غرف نوم و٣ حمامات\nنص تشطيب بإمكانية التشطيب الكامل\nجراج خاص\nكمبوند مغلق بأمن ٢٤ ساعة"
@@ -264,7 +264,7 @@ class DemoContent
             ],
             'XH-1011' => [
                 'desc' => $ar
-                    ? "عيادة 90م² في مبنى طبي مرخّص بالتجمع الخامس، الدور الثاني بأسانسير.\nالمبنى فيه عيادات شغّالة بالفعل، يعني حركة مرضى موجودة من غير ما تبدأ من الصفر."
+                    ? "عيادة 90م² في مبنى طبي مرخّص بالتجمع الخامس، الدور الثاني بأسانسير.\nفي المبنى عيادات عاملة بالفعل، أي أن حركة المرضى موجودة دون أن تبدأ من الصفر."
                     : "A 90m² clinic in a licensed medical building in Fifth Settlement, second floor with a lift.\nThe building already has operating clinics, so patient traffic exists without starting from zero.",
                 'features' => $ar
                     ? "مبنى طبي مرخّص\nالدور الثاني بأسانسير\nتقسيم عيادة جاهز\nغرفة انتظار\nمواقف للمرضى\nقريب من مستشفيات"
@@ -285,7 +285,7 @@ class DemoContent
                     ? "محل 65م² للإيجار في شريط تجاري بالإسكندرية، بواجهة زجاجية على شارع رئيسي.\nالعقد سنوي قابل للتجديد، والمرافق مستقلة على الوحدة."
                     : "A 65m² shop for rent in a retail strip in Alexandria, with a glass frontage on a main street.\nAnnual renewable contract, with utilities metered separately for the unit.",
                 'features' => $ar
-                    ? "واجهة زجاجية على شارع رئيسي\nشريط تجاري شغّال\nمرافق مستقلة\nعقد سنوي قابل للتجديد\nحمام داخل الوحدة\nمخزن صغير"
+                    ? "واجهة زجاجية على شارع رئيسي\nشريط تجاري عامل\nمرافق مستقلة\nعقد سنوي قابل للتجديد\nحمام داخل الوحدة\nمخزن صغير"
                     : "Glass frontage on a main street\nActive retail strip\nSeparately metered utilities\nAnnual renewable contract\nIn-unit bathroom\nSmall storeroom",
                 'gallery' => ['/images/demo/property-4.jpg', '/images/demo/area-3.jpg'],
             ],
