@@ -1,0 +1,13 @@
+import { chromium } from "playwright";
+const b = await chromium.launch();
+const p = await b.newPage();
+await p.goto(process.env.LINK, { waitUntil: "networkidle" });
+const pw = p.locator('input[type="password"]');
+await pw.nth(0).fill("Flow-Test-Pass-9182");
+await pw.nth(1).fill("Flow-Test-Pass-9182");
+await p.locator("button[type=submit]").first().click();
+await p.waitForTimeout(2500);
+const t = await p.locator("body").innerText();
+const idx = t.indexOf("كلمة مرور جديدة");
+console.log(t.slice(Math.max(0, idx - 100), idx + 500).replace(/\n+/g, " | "));
+await b.close();
