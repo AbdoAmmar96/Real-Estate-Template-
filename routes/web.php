@@ -158,7 +158,7 @@ Route::prefix('{locale}')
                 $locale === 'en' ? 'Real-estate blog' : 'المدونة العقارية',
                 $locale === 'en'
                     ? 'Analysis and practical guides on the Egyptian property market.'
-                    : 'تحليلات ودلائل عملية عن السوق العقاري المصري.',
+                    : 'تحليلات وأدلة عملية عن السوق العقاري المصري.',
                 null,
                 'website',
                 [Seo::breadcrumb($locale, [($locale === 'en' ? 'Blog' : 'المدونة') => '/blog'])],
