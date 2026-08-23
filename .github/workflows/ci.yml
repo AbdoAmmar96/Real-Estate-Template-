@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # الدفعة الجديدة على نفس الفرع بتلغي اللي قبلها — مفيش لازمة لنتيجة
+  # على كود اتخطّى، والـ runners مش مجانية بلا حدود
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: '8.3'
+  NODE_VERSION: '24'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # فحوص ساكنة — سريعة ومستقلة عن بعض، فبتتشغّل بالتوازي وبتوقّع كلها
+  # مش أول واحد بس (fail-fast: false)
+  # ---------------------------------------------------------------------------
+  static:
+    name: ${{ matrix.check.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - { name: 'Pint (فورمات)', cmd: './vendor/bin/pint --test' }
+          - { name: 'PHPStan (level 5)', cmd: './vendor/bin/phpstan analyse --no-progress --memory-limit=1G' }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: sqlite3, pdo_sqlite, mbstring, intl, gd
+          coverage: none
+
+      - name: تثبيت حزم PHP
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - run: ${{ matrix.check.cmd }}
+
+  # ---------------------------------------------------------------------------
+  # أنواع الفرونت — مستقلة تمامًا عن PHP
+  # ---------------------------------------------------------------------------
+  types:
+    name: TypeScript
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  # ---------------------------------------------------------------------------
+  # اختبارات الدومين
+  # ---------------------------------------------------------------------------
+  tests:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: sqlite3, pdo_sqlite, mbstring, intl, gd
+          coverage: none
+
+      - name: تثبيت حزم PHP
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: تجهيز البيئة
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: الميجريشنز
+        # `migrate` لوحده بيشغّل ميجريشنز الموديولات كمان (nwidart بيسجّلها
+        # في نفس المسارات) — و`module:migrate` من غير اسم موديول بيطلبه
+        # تفاعليًا وبيقع في الـ CI
+        run: php artisan migrate --force
+
+      - run: php artisan test
+
+  # ---------------------------------------------------------------------------
+  # الـ e2e — بتحرس حاجات مبتظهرش في اختبارات PHP: السيو، معاينة اللينك،
+  # والطفح الأفقي. محتاجة فرونت مبني وداتابيز فيها بيانات.
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: sqlite3, pdo_sqlite, mbstring, intl, gd
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: تثبيت الحزم
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress
+          npm ci
+
+      - name: تجهيز البيئة
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: الداتابيز بالبيانات
+        # الـ e2e بتفتح كروت عقارات فعلية — من غير seed الصفحات بتبقى فاضية
+        # والاختبارات بتقع لسبب مالوش علاقة بالكود
+        run: |
+          php artisan migrate --force
+          php artisan db:seed --force
+
+      - name: بناء الأصول
+        # من غير البناء الـ manifest مش موجود وكل صفحة بترمي ViteException
+        run: npm run build
+
+      - name: تثبيت المتصفح
+        run: npx playwright install --with-deps chromium
+
+      - run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
