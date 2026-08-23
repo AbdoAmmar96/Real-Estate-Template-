@@ -4,6 +4,7 @@ namespace Modules\Marketing\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Leads\Models\Lead;

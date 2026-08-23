@@ -2,9 +2,9 @@
 
 namespace Modules\Properties\Models;
 
-use App\Support\LogsActivity;
 use App\Models\User;
 use App\Support\Bilingual;
+use App\Support\LogsActivity;
 use App\Support\SharedSlugSpace;
 use App\Support\Sluggable;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,13 +12,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Modules\Compounds\Models\Compound;
 use Modules\Developers\Models\Developer;
 use Modules\Leads\Models\Lead;
-use Modules\Marketing\Models\FeaturedAd;
 use Modules\Locations\Models\Location;
+use Modules\Marketing\Models\FeaturedAd;
 
 /**
  * @property int $id
