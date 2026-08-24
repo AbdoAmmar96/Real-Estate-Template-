@@ -612,22 +612,43 @@ for (const width of [1280, 1536, 1920]) {
  | ولازم يترجّع حتى لو الاختبار وقع في النص.
  ---------------------------------------------------------------------------- */
 
-const setBlog = (on: '0' | '1') =>
-    execFileSync('php', [
-        'artisan',
-        'tinker',
-        '--execute',
-        `app(Modules\Core\Services\SettingsService::class)->setMany('general', ['blog_enabled' => '${on}']);`,
-    ], { cwd: process.cwd(), stdio: 'ignore' });
+const artisan = (code: string) =>
+    execFileSync('php', ['artisan', 'tinker', '--execute', code], {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+    });
+
+/**
+ * بيبدّل القسم ويتأكد إنه اتبدّل فعلًا.
+ *
+ * التأكيد مش زيادة: أول نسخة من الدالة دي كتبت `Modules\Core\...` جوه
+ * template literal، والـ `\C` اتبلع كهروب فوصل اسم الكلاس من غير شرطات،
+ * وtinker وقع، ورجّع صفر — فالاختبار عدّى أخضر وهو مش بيبدّل حاجة.
+ */
+const setBlog = (on: '0' | '1') => {
+    artisan(
+        `app(Modules\\Core\\Services\\SettingsService::class)->setMany('general', ['blog_enabled' => '${on}']);`,
+    );
+
+    const now = artisan(
+        `echo app(Modules\\Core\\Services\\SettingsService::class)->get('general', 'blog_enabled');`,
+    ).trim();
+
+    if (now !== on) {
+        throw new Error(`فشل تبديل المدونة: المطلوب ${on} والموجود ${now || '(فاضي)'}`);
+    }
+};
 
 test.describe.serial('the blog section', () => {
     // مشروع واحد بس: serial بيرتّب جوه المشروع مش بين المشاريع — ولو desktop
     // و mobile بدّلوا نفس الإعداد في نفس اللحظة الاختبار بيبقى flaky
-    test.skip(({ }, testInfo) => testInfo.project.name !== 'desktop', 'التبديل بيغيّر حالة عامة');
+    const desktopOnly = 'التبديل بيغيّر حالة عامة، فبيتشغّل في مشروع واحد';
 
     test.afterAll(() => setBlog('0'));
 
-    test('is a 404 while it is closed', async ({ page }) => {
+    test('is a 404 while it is closed', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop', desktopOnly);
+
         setBlog('0');
 
         const res = await page.goto('/ar/blog');
@@ -635,7 +656,9 @@ test.describe.serial('the blog section', () => {
         expect(res?.status()).toBe(404);
     });
 
-    test('renders without console or network errors once opened', async ({ page }) => {
+    test('renders without console or network errors once opened', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop', desktopOnly);
+
         setBlog('1');
 
         const consoleErrors: string[] = [];
