@@ -621,6 +621,10 @@ const setBlog = (on: '0' | '1') =>
     ], { cwd: process.cwd(), stdio: 'ignore' });
 
 test.describe.serial('the blog section', () => {
+    // مشروع واحد بس: serial بيرتّب جوه المشروع مش بين المشاريع — ولو desktop
+    // و mobile بدّلوا نفس الإعداد في نفس اللحظة الاختبار بيبقى flaky
+    test.skip(({ }, testInfo) => testInfo.project.name !== 'desktop', 'التبديل بيغيّر حالة عامة');
+
     test.afterAll(() => setBlog('0'));
 
     test('is a 404 while it is closed', async ({ page }) => {
