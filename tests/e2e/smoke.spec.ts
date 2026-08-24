@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
 
 /**
  * Smoke coverage for the public site + admin entry point.
@@ -12,7 +13,6 @@ const PUBLIC_PAGES = [
     { path: '/ar/compounds', name: 'compounds' },
     { path: '/ar/about', name: 'about' },
     { path: '/ar/contact', name: 'contact' },
-    { path: '/ar/blog', name: 'blog' },
 ];
 
 for (const page of PUBLIC_PAGES) {
@@ -507,7 +507,6 @@ const NO_SCROLL_PAGES = [
     '/ar/compounds',
     '/ar/developers',
     '/ar/areas',
-    '/ar/blog',
     '/ar/about',
     '/ar/contact',
     '/ar/add-property',
@@ -532,3 +531,124 @@ for (const path of NO_SCROLL_PAGES) {
         expect(scrollWidth, `${path} بيطفح ${scrollWidth - clientWidth}px`).toBeLessThanOrEqual(clientWidth + 1);
     });
 }
+
+
+/* ---------------------------------------------------------------------------
+ | تنسيق الهيدر
+ |
+ | صنف تاني بيعدّي بصمت: الصفحة مبتسحبش يمين وشمال، فاختبار الطفح بيعدّي،
+ | ومع ذلك القائمة بتلمس الشعار أو الأزرار وبتبقى مكرمشة.
+ |
+ | حصل فعلًا: البادينج كان `2xl:px-3.5`، والهيدر محدود بـ `max-w-7xl`
+ | يعني 1280 مهما كبرت الشاشة — فعند 1536 البادينج كبر جوه حاوية ما كبرتش
+ | والقائمة خرجت 36 بكسل عن إطارها ولمست الطرفين.
+ |
+ | وعدد اللينكات نفسه متغيّر: قفل قسم من الإعدادات بيشيل واحد، فالتنسيق
+ | لازم يفضل متوازن بالعددين.
+ ---------------------------------------------------------------------------- */
+
+for (const width of [1280, 1536, 1920]) {
+    test(`the header nav keeps its distance at ${width}px`, async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop', 'القائمة الأفقية بتظهر من 1280 فوق');
+
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto('/ar', { waitUntil: 'networkidle' });
+
+        const gap = await page.evaluate(() => {
+            const row = document.querySelector('header > div');
+            if (!row) return null;
+
+            const [logo, nav, actions] = [...row.children];
+            const items = [...nav.children].map((el) => el.getBoundingClientRect());
+            if (items.length === 0) return null;
+
+            const box = nav.getBoundingClientRect();
+            const start = Math.min(...items.map((i) => i.left));
+            const end = Math.max(...items.map((i) => i.right));
+
+            return {
+                // اللينكات خرجت عن إطار <nav>؟
+                spill: Math.max(0, box.left - start) + Math.max(0, end - box.right),
+                // rtl: الشعار يمين واللينكات شماله، والأزرار شمال واللينكات يمينها
+                toLogo: logo.getBoundingClientRect().left - end,
+                toActions: start - actions.getBoundingClientRect().right,
+            };
+        });
+
+        expect(gap).not.toBeNull();
+        expect(gap!.spill).toBe(0);
+        expect(gap!.toLogo).toBeGreaterThanOrEqual(16);
+        expect(gap!.toActions).toBeGreaterThanOrEqual(16);
+
+        // الحارس الحقيقي: الصف محدود بـ max-w-7xl فعرضه ثابت، فأي مقاس جوّه
+        // مايتغيرش بعرض الشاشة. الفحص ده بيمسك العطل حتى لو عدد اللينكات
+        // الحالي صغير كفاية إنه يستحمل التوسيع.
+        const scale = await page.evaluate(() => {
+            const link = document.querySelector('header nav a');
+            const row = document.querySelector('header > div');
+
+            return {
+                padding: getComputedStyle(link!).paddingInline,
+                fontSize: getComputedStyle(link!).fontSize,
+                rowWidth: Math.round(row!.getBoundingClientRect().width),
+            };
+        });
+
+        expect(scale.padding).toBe('10px');
+        expect(scale.fontSize).toBe('13.5px');
+        expect(scale.rowWidth).toBeLessThanOrEqual(1280);
+    });
+}
+
+
+/* ---------------------------------------------------------------------------
+ | قسم المدونة — مقفول افتراضيًا
+ |
+ | الافتراضي إخفاء، فصفحة المدونة مش في PUBLIC_PAGES: هي 404 على التثبيت
+ | النضيف. بس الصفحة نفسها لازم تفضل متغطّية لما العميل يفتحها، فالمجموعة
+ | دي بتفتح القسم وتقفله تاني.
+ |
+ | serial + afterAll: التبديل بيغيّر حالة عامة، فممنوع يتداخل مع نفسه،
+ | ولازم يترجّع حتى لو الاختبار وقع في النص.
+ ---------------------------------------------------------------------------- */
+
+const setBlog = (on: '0' | '1') =>
+    execFileSync('php', [
+        'artisan',
+        'tinker',
+        '--execute',
+        `app(Modules\Core\Services\SettingsService::class)->setMany('general', ['blog_enabled' => '${on}']);`,
+    ], { cwd: process.cwd(), stdio: 'ignore' });
+
+test.describe.serial('the blog section', () => {
+    test.afterAll(() => setBlog('0'));
+
+    test('is a 404 while it is closed', async ({ page }) => {
+        setBlog('0');
+
+        const res = await page.goto('/ar/blog');
+
+        expect(res?.status()).toBe(404);
+    });
+
+    test('renders without console or network errors once opened', async ({ page }) => {
+        setBlog('1');
+
+        const consoleErrors: string[] = [];
+        const failedRequests: string[] = [];
+
+        page.on('console', (msg) => {
+            if (msg.type() === 'error') consoleErrors.push(msg.text());
+        });
+        page.on('response', (res) => {
+            if (res.status() >= 400) failedRequests.push(`${res.status()} ${res.url()}`);
+        });
+
+        const res = await page.goto('/ar/blog', { waitUntil: 'networkidle' });
+
+        expect(res?.status()).toBe(200);
+        await expect(page.locator('#app')).not.toBeEmpty();
+        expect(consoleErrors).toEqual([]);
+        expect(failedRequests).toEqual([]);
+    });
+});
