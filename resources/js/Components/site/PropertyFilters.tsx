@@ -179,12 +179,15 @@ export default function PropertyFilters({
             }}
             className="mb-6 rounded-3xl border border-gray-100 bg-bg p-5 shadow-[0_4px_18px_rgba(11,18,32,0.04)]"
         >
-            {/* ---------- الصف السريع ---------- */}
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                <div className="lg:col-span-2">
-                    <span className={label}>{t.search}</span>
-                    {text("q", t.search)}
-                </div>
+            {/* ---------- الصف السريع ----------
+                البحث ياخد السطر كله لوحده — هو أعرض حقل وأكتر واحد
+                بيتكتب فيه، والقوايم الأربعة بعده في سطر واحد متوازيين */}
+            <div>
+                <span className={label}>{t.search}</span>
+                {text("q", t.search)}
+            </div>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {shown("location") && (
                     <div>
                         <span className={label}>{t.area}</span>
@@ -197,9 +200,6 @@ export default function PropertyFilters({
                         {select("type", plain(options.types), t.all)}
                     </div>
                 )}
-            </div>
-
-            <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
                 {shown("purpose") && (
                     <div>
                         <span className={label}>{t.purpose}</span>
