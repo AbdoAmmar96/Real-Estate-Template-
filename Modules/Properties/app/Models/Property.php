@@ -450,6 +450,10 @@ class Property extends Model
                 'developer' => $this->resolvedDeveloper()?->t('name', $locale) ?? '',
                 'delivery' => $this->compound->delivery ?? '',
             ] : null,
+            // الوحدة مالهاش إحداثيات بتاعتها — بتورّث موقع مشروعها،
+            // فالخريطة بتبان للوحدات اللي جوّه مشاريع متظبّطة على الخريطة
+            'lat' => $this->compound?->latitude !== null ? (float) $this->compound->latitude : null,
+            'lng' => $this->compound?->longitude !== null ? (float) $this->compound->longitude : null,
         ];
     }
 }

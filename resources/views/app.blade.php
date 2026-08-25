@@ -36,6 +36,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- طلبات fetch اللي بترجّع JSON (زي البروشور) محتاجة التوكن من هنا،
+         Inertia بياخده من الكوكي لكن fetch العادي لأ --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title inertia>{{ $title }}</title>
 
     @if ($description)

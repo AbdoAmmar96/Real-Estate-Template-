@@ -10,6 +10,8 @@ export interface AuthUser {
     staff: boolean;
     /** أرقام الوحدات المحفوظة — عشان القلب يطلع مليان من أول رندر */
     favorites: number[];
+    /** أرقام المشاريع المحفوظة — «احفظ» في صفحة الكمبوند */
+    savedCompounds: number[];
 }
 
 /** طلب في صفحة «طلباتي» */
@@ -102,8 +104,15 @@ export interface Compound {
     slug: string;
     name: string;
     developer: string;
+    /** سلَج المطوّر — عشان اسمه يبقى لينك مش نص ميت */
+    developerSlug?: string;
+    developerLogo?: string;
     area: string;
+    /** سلَج المنطقة — نفس السبب */
+    areaSlug?: string;
     starting: string;
+    /** سعر الريسيل — بيتشال لو مفيش ريسيل معروض */
+    resale?: string;
     down: string;
     years: string;
     new: boolean;
@@ -112,10 +121,49 @@ export interface Compound {
     delivery: string;
 }
 
+/** سؤال وإجابة في أكورديون الأسئلة الشائعة */
+export interface FaqItem {
+    q: string;
+    a: string;
+}
+
 /** الكمبوند كامل في صفحة التفاصيل */
 export interface CompoundDetail extends Compound {
     features: string[];
     gallery: string[];
+    /** صورة المخطط العام — فاضية يعني القسم بيختفي */
+    masterPlan: string;
+    /** مسار ملف البروشور — فاضي يعني زر التحميل بيختفي */
+    brochure: string;
+    lat: number | null;
+    lng: number | null;
+    faqs: FaqItem[];
+    /** عدد الوحدات المنشورة داخل المشروع */
+    units: number;
+    developerId?: number | null;
+    locationId?: number | null;
+}
+
+/** كارت «تصفّح حسب النوع» — بعدد الوحدات الحقيقي ورابط مفلتر */
+export interface TypeCard {
+    /** slug الجمع من Property::TYPE_PLURALS — بيحدد الأيقونة */
+    key: string;
+    type: string;
+    label: string;
+    count: number;
+    category: "residential" | "commercial";
+    url: string;
+}
+
+/** بانر «مشروع تحت الضوء» — إعلان بموضع spotlight */
+export interface SpotlightAd extends Compound {
+    adId: number;
+    kind: "compound" | "property";
+    /** رابط التتبّع — بيعدّي على /ads/{id} قبل صفحة المشروع */
+    url: string;
+    href: string;
+    masterPlan: string;
+    brochure: string;
 }
 
 /** بطاقة منطقة في قسم "مناطق بنغطيها" بالرئيسية */

@@ -192,11 +192,53 @@ export default function PropertyPage({
                                                 <span>{t.meter}</span>
                                             </span>,
                                         )}
-                                    {property.area && spec(<MapPin size={17} />, t.area, property.area)}
+                                    {property.area &&
+                                        spec(
+                                            <MapPin size={17} />,
+                                            t.area,
+                                            property.areaSlug ? (
+                                                <Link
+                                                    href={`/${locale}/areas/${property.areaSlug}`}
+                                                    className="transition hover:text-primary hover:underline"
+                                                >
+                                                    {property.area}
+                                                </Link>
+                                            ) : (
+                                                property.area
+                                            ),
+                                        )}
+                                    {property.developer &&
+                                        spec(
+                                            <Building2 size={17} />,
+                                            t.developer,
+                                            property.developerSlug ? (
+                                                <Link
+                                                    href={`/${locale}/developers/${property.developerSlug}`}
+                                                    className="transition hover:text-primary hover:underline"
+                                                >
+                                                    {property.developer}
+                                                </Link>
+                                            ) : (
+                                                property.developer
+                                            ),
+                                        )}
                                     {property.ref &&
                                         spec(<Hash size={17} />, t.ref, <span dir="ltr">{property.ref}</span>)}
                                     {property.compound &&
-                                        spec(<Building2 size={17} />, t.project, property.compound.name)}
+                                        spec(
+                                            <Building2 size={17} />,
+                                            t.project,
+                                            property.compound.slug ? (
+                                                <Link
+                                                    href={`/${locale}/compounds/${property.compound.slug}`}
+                                                    className="transition hover:text-primary hover:underline"
+                                                >
+                                                    {property.compound.name}
+                                                </Link>
+                                            ) : (
+                                                property.compound.name
+                                            ),
+                                        )}
                                     {property.finishing && spec(<Sparkles size={17} />, t.finishing, property.finishing)}
                                     {property.floor && spec(<Tag size={17} />, t.floor, property.floor)}
                                     {property.delivery &&

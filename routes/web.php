@@ -96,6 +96,7 @@ Route::prefix('{locale}')
                 'compounds' => $compounds,
                 'filters' => $filters,
                 'options' => Catalog::searchOptions($locale),
+                'areas' => Catalog::allAreas($locale),
                 'meta' => Seo::page(
                     $locale,
                     $title,

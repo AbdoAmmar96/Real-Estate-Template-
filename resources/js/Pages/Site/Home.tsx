@@ -1,111 +1,113 @@
 import { Link, usePage } from "@inertiajs/react";
 import AdStrip, { type Ad } from "@/Components/site/AdStrip";
-import RecentlyViewed from "@/Components/site/RecentlyViewed";
+import AreaCard from "@/Components/site/AreaCard";
 import CompoundCard from "@/Components/site/CompoundCard";
-import CountUp from "@/Components/site/CountUp";
-import FrameMedia from "@/Components/site/FrameMedia";
+import CompoundsCarousel from "@/Components/site/CompoundsCarousel";
+import DevelopersStrip from "@/Components/site/DevelopersStrip";
 import HeroSearch from "@/Components/site/HeroSearch";
+import HomeContact from "@/Components/site/HomeContact";
+import HowItWorks from "@/Components/site/HowItWorks";
+import PromoBanner from "@/Components/site/PromoBanner";
 import PropertyCard from "@/Components/site/PropertyCard";
-import Reviews, { type ReviewCard } from "@/Components/site/Reviews";
+import RecentlyViewed from "@/Components/site/RecentlyViewed";
 import Reveal from "@/Components/site/Reveal";
+import Reviews, { type ReviewCard } from "@/Components/site/Reviews";
+import SpotlightBanner from "@/Components/site/SpotlightBanner";
+import StatsBand from "@/Components/site/StatsBand";
+import TypeCards from "@/Components/site/TypeCards";
+import WhyUs from "@/Components/site/WhyUs";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { Area, Compound, Property, SearchOptions, SharedProps } from "@/lib/types";
+import type {
+    Area,
+    Compound,
+    DeveloperCard,
+    Property,
+    SearchOptions,
+    SharedProps,
+    SpotlightAd,
+    TypeCard,
+} from "@/lib/types";
 
 /**
- * Home v1.0 — منفّذة من كانفاس Claude Design "منصة إكس هومز العقارية".
- * الأقسام: هيرو + شريط بحث + عقارات مختارة + كمبوندات + خطوات العمل + المناطق + بانر المقارنة.
- * كل الألوان من توكنز الثيم (قاعدة البيانات) — مفيش قيم لونية ثابتة هنا.
+ * الرئيسية — الأقسام بترتيبها:
+ * هيرو · تصفّح حسب النوع · أحدث المشروعات · مشروع تحت الضوء · أفضل
+ * الكمبوندات · أشهر المطوّرين · المناطق الأكثر طلبًا · إيجار حسب النوع ·
+ * أحدث العقارات · بانر ترويجي · سجل إنجازاتنا · كيف يعمل الموقع ·
+ * شوهدت مؤخرًا · لماذا تختارنا · آراء العملاء · تواصل معنا.
+ *
+ * كل قسم بيختفي لوحده لو مالوش بيانات — مفيش عنوان بيفضل معلّق فوق فراغ.
+ * الألوان كلها من توكنز الثيم (قاعدة البيانات) — مفيش قيمة لونية ثابتة هنا.
  */
 
 const copy = {
     ar: {
-        badge: "إطلاق جديد · 6 كمبوندات في العاصمة الإدارية",
-        h1a: "وحدتك الجديدة",
-        h1b: "باختيار مدروس لا بالصدفة",
-        sub: "منصة عقارية مصرية تجمع وحدات معتمدة في القاهرة الجديدة والعاصمة الإدارية والإسكندرية، مع بيانات كاملة عن السعر وأنظمة السداد وموعد التسليم قبل أي معاينة.",
-        cta: "تصفّح العقارات",
-        cta2: "الكمبوندات",
-        unitsLabel: "وحدة متاحة",
-        compoundsLabel: "كمبوند مسجّل",
-        yearsLabel: "سنة في السوق",
-        avgLabel: "متوسط سعر المتر · التجمع",
-        avgValue: "EGP 34,500",
-        planLabel: "أنظمة تقسيط لحد",
-        planValue: "10 سنوات",
-        propsTitle: "عقارات مختارة",
-        propsSub: "وحدات تمت مراجعة أوراقها ومعاينتها من فريقنا خلال آخر أسبوعين.",
-        propsAll: "كل العقارات",
-        compsTitle: "كمبوندات بأنظمة سداد واضحة",
+        saleTypes: "تصفّح حسب النوع",
+        saleTypesSub: "اختر نوع الوحدة وشوف كل المعروض منها بالسعر ونظام السداد.",
+        newProjects: "أحدث المشروعات",
+        newProjectsSub: "إطلاقات جديدة بأنظمة سداد من المطوّر مباشرة.",
+        compsTitle: "أفضل الكمبوندات",
         compsSub: "المقدم والتقسيط وسعر البداية معروضة قبل أن تتواصل مع أحد.",
         compsAll: "كل الكمبوندات",
-        stepsTitle: "من الاستفسار لتسليم المفتاح",
-        stepsSub: "أربع خطوات ثابتة، ومستشار واحد مسؤول عن ملفك من أول مكالمة حتى العقد المسجّل.",
-        steps: [
-            ["تحديد الميزانية والاحتياج", "مكالمة 15 دقيقة نخرج منها بقائمة مختصرة تناسبك فعلًا."],
-            ["معاينة مرتبة في يوم واحد", "جدول زيارات لثلاث وحدات كحد أقصى، مع توفير المواصلات من جانبنا."],
-            ["مراجعة الأوراق والتفاوض", "تحقق من التسجيل والرخصة، وتفاوض على السعر ونظام السداد."],
-            ["التعاقد والتسليم", "حضور محامي المنصة، ومتابعة أقساط ما بعد التعاقد."],
-        ],
-        areasTitle: "مناطق نغطيها بالتفصيل",
+        areasTitle: "المناطق الأكثر طلبًا",
+        areasSub: "اضغط على أي منطقة لتصفّح مشاريعها ووحداتها المتاحة.",
+        areasAll: "كل المناطق",
+        rentTypes: "عقارات للإيجار حسب نوع الوحدة",
+        rentTypesSub: "وحدات مفروشة وغير مفروشة بأسعار شهرية واضحة.",
+        propsTitle: "أحدث العقارات",
+        propsSub: "وحدات تمت مراجعة أوراقها ومعاينتها من فريقنا خلال آخر أسبوعين.",
+        propsAll: "كل العقارات",
         reviewsTitle: "عملاء اشتروا معنا",
         reviewsDesc: "آراء مكتوبة من حسابات عملاء فعليين — نراجعها قبل نشرها، ولا نكتب أيًّا منها بالنيابة عنهم.",
-        ctaTitle: "محتار بين وحدتين؟",
-        ctaSub: "أرسل إلينا الاختيارات وسنعود إليك بمقارنة مكتوبة بالسعر وسعر المتر ونظام السداد وتاريخ التسليم.",
-        ctaBtn: "تواصل معنا",
-        ctaWa: "تواصل معنا عبر واتساب",
+        clients: "عميل خدمناهم",
+        years: "سنة في السوق",
     },
     en: {
-        badge: "New launch · 6 compounds in the New Capital",
-        h1a: "Your next home",
-        h1b: "chosen by study, not by chance",
-        sub: "An Egyptian real-estate platform gathering verified units in New Cairo, the New Capital and Alexandria — with full data on price, payment plans and delivery date before any viewing.",
-        cta: "Browse properties",
-        cta2: "Compounds",
-        unitsLabel: "Available units",
-        compoundsLabel: "Registered compounds",
-        yearsLabel: "Years in market",
-        avgLabel: "Avg. price / m² · Settlement",
-        avgValue: "EGP 34,500",
-        planLabel: "Installments up to",
-        planValue: "10 years",
-        propsTitle: "Selected properties",
+        saleTypes: "Browse by type",
+        saleTypesSub: "Pick a unit type and see everything listed with price and payment plan.",
+        newProjects: "Latest projects",
+        newProjectsSub: "New launches with payment plans straight from the developer.",
+        compsTitle: "Top compounds",
+        compsSub: "Down payment, instalments and starting price shown before you talk to anyone.",
+        compsAll: "All compounds",
+        areasTitle: "Most in-demand areas",
+        areasSub: "Tap any area to browse its projects and available units.",
+        areasAll: "All areas",
+        rentTypes: "Rentals by unit type",
+        rentTypesSub: "Furnished and unfurnished units with clear monthly prices.",
+        propsTitle: "Latest properties",
         propsSub: "Units whose papers were reviewed and inspected by our team in the last two weeks.",
         propsAll: "All properties",
-        compsTitle: "Compounds with clear payment plans",
-        compsSub: "Down payment, installments and starting price shown before you talk to anyone.",
-        compsAll: "All compounds",
-        stepsTitle: "From enquiry to handover",
-        stepsSub: "Four fixed steps, and one advisor responsible for your file from the first call to the registered contract.",
-        steps: [
-            ["Defining budget and needs", "A 15-minute call that produces a shortlist that actually fits you."],
-            ["An organised viewing in one day", "A visit schedule for three units max, with transport on us."],
-            ["Paperwork review and negotiation", "Registration and licence checks, plus price and plan negotiation."],
-            ["Contract and handover", "Our lawyer attends, and we follow up post-contract instalments."],
-        ],
-        areasTitle: "Areas we cover in depth",
         reviewsTitle: "Clients who bought with us",
         reviewsDesc: "Written from real client accounts — we review each one before it appears, and we never write one on their behalf.",
-        ctaTitle: "Torn between two units?",
-        ctaSub: "Send us your options and we will return a written comparison of price, price per m², payment plan and delivery date.",
-        ctaBtn: "Contact us",
-        ctaWa: "WhatsApp us",
+        clients: "clients served",
+        years: "years in market",
     },
 };
 
 export default function Home({
     latestProperties,
     latestCompounds,
+    newCompounds = [],
     areas,
+    developers = [],
+    saleTypes = [],
+    rentTypes = [],
     searchOptions,
     ads = [],
+    spotlight = null,
     recentlyViewed = [],
     reviews = [],
 }: {
     latestProperties: Property[];
     latestCompounds: Compound[];
+    newCompounds?: Compound[];
     areas: Area[];
+    developers?: DeveloperCard[];
+    saleTypes?: TypeCard[];
+    rentTypes?: TypeCard[];
     searchOptions: SearchOptions;
     ads?: Ad[];
+    spotlight?: SpotlightAd | null;
     recentlyViewed?: Property[];
     reviews?: ReviewCard[];
 }) {
@@ -113,24 +115,17 @@ export default function Home({
     const ar = locale === "ar";
     const t = copy[locale] ?? copy.ar;
     const wa = settings.contact?.whatsapp;
-    const heroMedia = settings.branding?.hero_media;
 
-    // أرقام حقيقية: الوحدات والكمبوندات معدودة من الداتابيز،
-    // والسنين محسوبة من "سنة التأسيس" في الإعدادات. أي رقم مش متوفّر بيتشال.
+    // أرقام «سجل إنجازاتنا» الإضافية من الإعدادات — بتتشال لو مش متكتوبة،
+    // فالقسم مبيعرضش صفر ولا رقم متلفّق
     const founded = Number(settings.general?.founded_year);
-    const years = founded > 1900 ? String(new Date().getFullYear() - founded) : null;
+    const years = founded > 1900 ? String(new Date().getFullYear() - founded) : "";
+    const clients = String(settings.general?.clients_served ?? "");
 
-    // searchOptions.stats جاية من Catalog::stats() — إجمالي فعلي مش عدد
-    // الكروت المعروضة (دي محدودة بـ 6 و 3)
-    const totals = Object.fromEntries(searchOptions.stats.map((s) => [s.label, s.value]));
-    const [units, compounds] = [Object.values(totals)[0] ?? "0", Object.values(totals)[1] ?? "0"];
-
-    const stats: [string, string][] = [
-        [units, t.unitsLabel],
-        [compounds, t.compoundsLabel],
-        ...(years ? ([[years, t.yearsLabel]] as [string, string][]) : []),
-    ];
-    const processMedia = settings.branding?.process_media;
+    const extraStats = [
+        clients && { value: clients, label: t.clients },
+        years && { value: years, label: t.years },
+    ].filter(Boolean) as { value: string; label: string }[];
 
     const sectionTitle = (title: string, sub: string, href: string, allLabel: string) => (
         <div className="mb-6 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
@@ -149,205 +144,101 @@ export default function Home({
 
     return (
         <SiteLayout>
-            {/* ---------------- الهيرو الرئيسي: فيديو خلفية + بحث ---------------- */}
+            {/* 1 — هيرو + بحث */}
             <HeroSearch options={searchOptions} variant={settings.theme?.hero_variant ?? "video"} />
 
             <AdStrip ads={ads} />
 
+            {/* 2 — تصفّح حسب النوع */}
+            <TypeCards items={saleTypes} title={t.saleTypes} desc={t.saleTypesSub} />
+
+            {/* 3 — أحدث المشروعات */}
+            <CompoundsCarousel
+                items={newCompounds}
+                title={t.newProjects}
+                desc={t.newProjectsSub}
+                allHref={`/${locale}/compounds?new=1`}
+                allLabel={t.compsAll}
+                tone="surface"
+            />
+
+            {/* 4 — بانر مشروع تحت الضوء */}
+            <SpotlightBanner ad={spotlight} />
+
+            {/* 5 — أفضل الكمبوندات */}
+            {latestCompounds.length > 0 && (
+                <section className="bg-bg px-4 py-14">
+                    <div className="mx-auto max-w-7xl">
+                        {sectionTitle(t.compsTitle, t.compsSub, `/${locale}/compounds`, t.compsAll)}
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {latestCompounds.map((c, i) => (
+                                <Reveal key={c.id} delay={i * 110}>
+                                    <CompoundCard c={c} ar={ar} wa={wa} />
+                                </Reveal>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* 6 — أشهر المطوّرين */}
+            <DevelopersStrip items={developers} />
+
+            {/* 7 — المناطق الأكثر طلبًا */}
+            {areas.length > 0 && (
+                <section className="bg-bg px-4 py-14">
+                    <div className="mx-auto max-w-7xl">
+                        {sectionTitle(t.areasTitle, t.areasSub, `/${locale}/areas`, t.areasAll)}
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {areas.map((a, i) => (
+                                <Reveal key={a.id} delay={i * 80}>
+                                    <AreaCard a={a} height="h-56" />
+                                </Reveal>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* 8 — عقارات للإيجار حسب نوع الوحدة */}
+            <TypeCards items={rentTypes} title={t.rentTypes} desc={t.rentTypesSub} />
+
+            {/* 9 — أحدث العقارات */}
+            {latestProperties.length > 0 && (
+                <section className="bg-surface px-4 py-14">
+                    <div className="mx-auto max-w-7xl">
+                        {sectionTitle(t.propsTitle, t.propsSub, `/${locale}/properties`, t.propsAll)}
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {latestProperties.map((p, i) => (
+                                <Reveal key={p.id} delay={i * 110}>
+                                    <PropertyCard p={p} ar={ar} wa={wa} />
+                                </Reveal>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* 10 — بانر ترويجي */}
+            <PromoBanner />
+
+            {/* 11 — سجل إنجازاتنا */}
+            <StatsBand items={searchOptions.stats} extra={extraStats} />
+
+            {/* 12 — كيف يعمل الموقع؟ */}
+            <HowItWorks />
+
+            {/* 13 — شوهدت مؤخرًا */}
             <RecentlyViewed properties={recentlyViewed} />
 
-            {/* ---------------- هيرو ثانوي ---------------- */}
-            <section className="bg-surface px-4 pb-20 pt-10">
-                <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-                    <Reveal>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[11px] font-extrabold text-secondary">
-                            {t.badge}
-                        </span>
+            {/* 14 — لماذا تختار موقعنا؟ */}
+            <WhyUs />
 
-                        <h1 className="mt-4 text-4xl font-black leading-[1.25] text-secondary md:text-6xl">
-                            {t.h1a}
-                            <br />
-                            {t.h1b}
-                        </h1>
-
-                        <p className="mt-4 max-w-lg text-base leading-[1.9] text-muted">{t.sub}</p>
-
-                        <div className="mt-6 flex flex-wrap items-center gap-3.5">
-                            <Link
-                                href={`/${locale}/properties`}
-                                className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover"
-                            >
-                                {t.cta}
-                            </Link>
-                            <Link
-                                href={`/${locale}/compounds`}
-                                className="rounded-brand border-2 border-secondary px-8 py-3 text-sm font-extrabold text-secondary transition hover:bg-secondary hover:text-white"
-                            >
-                                {t.cta2}
-                            </Link>
-                        </div>
-
-                        <div className="mt-8 flex flex-wrap items-center gap-6">
-                            {stats.map(([value, label], i) => (
-                                <div key={label} className="flex items-center gap-6">
-                                    {i > 0 && <span className="h-10 w-px bg-gray-200" aria-hidden />}
-                                    <span className="flex flex-col gap-1">
-                                        <span className="text-[26px] font-black text-primary" dir="ltr">
-                                            <CountUp value={value} />
-                                        </span>
-                                        <span className="text-xs font-bold text-muted">{label}</span>
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </Reveal>
-
-                    <Reveal delay={140}>
-                        <div className="relative">
-                            <FrameMedia src={heroMedia} poster="/images/demo/hero.jpg" alt="" ratio="4 / 4.6" priority />
-                            <div className="absolute inset-x-4 bottom-4 grid grid-cols-[1fr_1px_1fr] items-center gap-4 rounded-2xl bg-bg/90 p-4 backdrop-blur">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-bold text-muted">{t.avgLabel}</span>
-                                    <span className="text-lg font-extrabold text-primary" dir="ltr">
-                                        {t.avgValue}
-                                    </span>
-                                </div>
-                                <span className="h-full w-px bg-gray-200" aria-hidden />
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-bold text-muted">{t.planLabel}</span>
-                                    <span className="text-lg font-extrabold text-primary">{t.planValue}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </Reveal>
-                </div>
-            </section>
-
-
-            {/* ---------------- عقارات مختارة ---------------- */}
-            <section className="bg-bg px-4 py-14">
-                <div className="mx-auto max-w-7xl">
-                    {sectionTitle(t.propsTitle, t.propsSub, `/${locale}/properties`, t.propsAll)}
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {latestProperties.map((p, i) => (
-                            <Reveal key={p.id} delay={i * 110}>
-                                <PropertyCard p={p} ar={ar} wa={wa} />
-                            </Reveal>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ---------------- كمبوندات ---------------- */}
-            <section className="bg-surface px-4 py-14">
-                <div className="mx-auto max-w-7xl">
-                    {sectionTitle(t.compsTitle, t.compsSub, `/${locale}/compounds`, t.compsAll)}
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {latestCompounds.map((c, i) => (
-                            <Reveal key={c.id} delay={i * 110}>
-                                <CompoundCard c={c} ar={ar} wa={wa} />
-                            </Reveal>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ---------------- من الاستفسار لتسليم المفتاح ---------------- */}
-            <section className="bg-bg px-4 py-14">
-                <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1fr_1.05fr]">
-                    <Reveal>
-                        <FrameMedia src={processMedia} poster="/images/demo/process.jpg" alt="" ratio="5 / 4" />
-                    </Reveal>
-
-                    <Reveal delay={140}>
-                        <h2 className="text-3xl font-extrabold text-secondary">{t.stepsTitle}</h2>
-                        <p className="mt-2 max-w-lg text-base leading-[1.9] text-muted">{t.stepsSub}</p>
-
-                        <div className="mt-6 flex flex-col gap-4">
-                            {t.steps.map(([title, desc], i) => (
-                                <div key={title} className="flex items-start gap-4">
-                                    <span
-                                        dir="ltr"
-                                        className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-sm font-extrabold text-secondary"
-                                    >
-                                        0{i + 1}
-                                    </span>
-                                    <div>
-                                        <h3 className="text-[17px] font-extrabold text-secondary">{title}</h3>
-                                        <p className="mt-2 text-sm leading-[1.8] text-muted">{desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Reveal>
-                </div>
-            </section>
-
-            {/* ---------------- المناطق ---------------- */}
-            <section className="bg-surface px-4 py-14">
-                <div className="mx-auto max-w-7xl">
-                    <Reveal>
-                        <h2 className="mb-6 text-3xl font-extrabold text-secondary">{t.areasTitle}</h2>
-                    </Reveal>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {areas.map((a, i) => (
-                            <Reveal key={a.id} delay={i * 110}>
-                                <Link
-                                    href={a.url ?? `/${locale}/areas`}
-                                    className="group relative block h-64 overflow-hidden rounded-3xl border border-gray-100 bg-bg transition duration-200 hover:-translate-y-1 hover:border-primary/50"
-                                >
-                                    <img
-                                        src={a.image}
-                                        alt={a.name}
-                                        loading="lazy"
-                                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                    />
-                                    <div className="pointer-events-none absolute inset-x-4 bottom-3.5 flex items-center justify-between gap-3 rounded-2xl bg-bg/90 p-4 backdrop-blur">
-                                        <span className="flex flex-col gap-1">
-                                            <span className="text-[17px] font-extrabold text-secondary">{a.name}</span>
-                                            <span className="text-xs font-bold text-muted">{a.note}</span>
-                                        </span>
-                                        <span className="shrink-0 text-lg font-extrabold text-primary">{a.count}</span>
-                                    </div>
-                                </Link>
-                            </Reveal>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ---------------- آراء العملاء (بيختفي لو مفيش رأي معتمد) ---------------- */}
+            {/* 15 — آراء العملاء (بيختفي لو مفيش رأي معتمد) */}
             <Reviews items={reviews} title={t.reviewsTitle} desc={t.reviewsDesc} />
 
-            {/* ---------------- بانر المقارنة ---------------- */}
-            <section className="bg-bg px-4 pb-20">
-                <Reveal>
-                    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-8 rounded-3xl border border-primary/30 bg-primary/10 p-8">
-                        <div>
-                            <h2 className="text-3xl font-extrabold text-secondary">{t.ctaTitle}</h2>
-                            <p className="mt-2 max-w-xl text-base leading-[1.8] text-muted">{t.ctaSub}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-3.5">
-                            <Link
-                                href={`/${locale}/contact`}
-                                className="rounded-brand bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-fg transition hover:bg-primary-hover"
-                            >
-                                {t.ctaBtn}
-                            </Link>
-                            {wa && (
-                                <a
-                                    href={`https://wa.me/${wa}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-brand border-2 border-secondary px-8 py-3 text-sm font-extrabold text-secondary transition hover:bg-secondary hover:text-white"
-                                >
-                                    {t.ctaWa}
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                </Reveal>
-            </section>
+            {/* 16 — تواصل معنا */}
+            <HomeContact />
         </SiteLayout>
     );
 }
