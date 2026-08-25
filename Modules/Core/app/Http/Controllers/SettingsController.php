@@ -65,6 +65,7 @@ class SettingsController extends Controller
         'radius' => 'استدارة الزوايا (مثال: 14px)',
         'font_heading' => 'خط العناوين',
         'font_body' => 'خط النصوص',
+        'font_logo' => 'خط اسم المنصّة (اللوجو)',
         'hero_variant' => 'نمط الهيرو',
         // branding
         'logo_path' => 'مسار اللوجو (مثال: /images/logo.png)',
@@ -132,6 +133,7 @@ class SettingsController extends Controller
         'danger' => 'color',
         'font_heading' => 'select',
         'font_body' => 'select',
+        'font_logo' => 'select',
         'hero_variant' => 'select',
         'logo_path' => 'media',
         'og_image' => 'media',
@@ -171,6 +173,7 @@ class SettingsController extends Controller
         return [
             'font_heading' => $fonts,
             'font_body' => $fonts,
+            'font_logo' => $fonts,
             'hero_variant' => [
                 ['value' => 'video', 'label' => 'فيديو خلفية + بحث'],
                 ['value' => 'webgl', 'label' => 'WebGL ثلاثي الأبعاد'],

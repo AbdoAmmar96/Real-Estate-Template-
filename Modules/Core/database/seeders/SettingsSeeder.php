@@ -63,6 +63,9 @@ class SettingsSeeder extends Seeder
                 'radius' => '14px',
                 'font_heading' => 'Cairo',
                 'font_body' => 'Cairo',
+                // اسم المنصّة في الهيدر بخط مختلف عن باقي الموقع — البراند
+                // لازم يبان مميّز، ومن هنا يتغيّر من غير build
+                'font_logo' => 'Readex Pro',
                 'hero_variant' => 'video',
             ],
 

@@ -264,7 +264,7 @@ class StaffRolesTest extends TestCase
         $this->get("/admin/users/{$broker->id}/edit")->assertNotFound();
     }
 
-    public function test_super_admin_hands_out_every_role(): void
+    public function test_super_admin_hands_out_every_role_except_platform_owner(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
 
@@ -274,7 +274,14 @@ class StaffRolesTest extends TestCase
             'value',
         );
 
-        $this->assertSame(array_keys(RolePermissionSeeder::ROLES), $roles);
+        // كل الأدوار ما عدا ملكية المنصّة — السوبر أدمن ما يقدرش يرقّي
+        // نفسه ولا غيره لدور أعلى منه
+        $expected = array_values(array_diff(
+            array_keys(RolePermissionSeeder::ROLES),
+            [RolePermissionSeeder::OWNER_ROLE],
+        ));
+
+        $this->assertSame($expected, $roles);
 
         $this->post('/admin/users', [
             'name' => 'وسيط جديد', 'email' => 'new@test.local', 'role' => 'broker',
@@ -282,6 +289,48 @@ class StaffRolesTest extends TestCase
         ])->assertRedirect();
 
         $this->assertTrue(User::where('email', 'new@test.local')->sole()->hasRole('broker'));
+    }
+
+    /** ملكية المنصّة فوق السوبر أدمن: مخفية عنه في القايمة وبالـ id وفي توزيع الأدوار */
+    public function test_platform_owner_is_hidden_from_super_admin(): void
+    {
+        $owner = $this->userWithRole(RolePermissionSeeder::OWNER_ROLE);
+
+        $this->actingAs($this->userWithRole('super_admin'));
+
+        $emails = array_column($this->get('/admin/users')->viewData('page')['props']['rows']['data'], 'email');
+        $this->assertNotContains($owner->email, $emails);
+
+        // ولا بالرابط المباشر
+        $this->get("/admin/users/{$owner->id}/edit")->assertNotFound();
+
+        // ولا يقدر يرقّي حساب لملكية المنصّة
+        $this->post('/admin/users', [
+            'name' => 'مالك مزيّف', 'email' => 'fake-owner@test.local',
+            'role' => RolePermissionSeeder::OWNER_ROLE,
+            'password' => 'password123', 'password_confirmation' => 'password123', 'is_active' => true,
+        ])->assertSessionHasErrors('role');
+    }
+
+    /** المالك بيشوف الكل ويقدر يوزّع دور الملكية */
+    public function test_platform_owner_sees_everyone_and_can_assign_ownership(): void
+    {
+        $owner = $this->userWithRole(RolePermissionSeeder::OWNER_ROLE);
+        $super = $this->userWithRole('super_admin');
+
+        $this->actingAs($owner);
+
+        $emails = array_column($this->get('/admin/users')->viewData('page')['props']['rows']['data'], 'email');
+        $this->assertContains($owner->email, $emails);
+        $this->assertContains($super->email, $emails);
+
+        $this->post('/admin/users', [
+            'name' => 'مالك تاني', 'email' => 'owner2@test.local',
+            'role' => RolePermissionSeeder::OWNER_ROLE,
+            'password' => 'password123', 'password_confirmation' => 'password123', 'is_active' => true,
+        ])->assertRedirect();
+
+        $this->assertTrue(User::where('email', 'owner2@test.local')->sole()->hasRole(RolePermissionSeeder::OWNER_ROLE));
     }
 
     public function test_the_last_role_manager_cannot_be_demoted_or_deleted(): void

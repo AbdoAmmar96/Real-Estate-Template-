@@ -3,10 +3,13 @@
 namespace Modules\Seo\Http\Controllers;
 
 use App\Support\Features;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 use Modules\Blog\Models\Post;
 use Modules\Compounds\Models\Compound;
+use Modules\Core\Services\SettingsService;
 use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Pages\Models\Page;
@@ -126,5 +129,36 @@ class SitemapController extends Controller
         ];
 
         return response(implode("\n", $lines), 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+
+    /**
+     * مانيفست التطبيق — الاسم واللون والأيقونة من الإعدادات.
+     *
+     * بيتولّد مش ملف ثابت: لو الأدمن غيّر اللوجو أو اللون الأساسي،
+     * الأيقونة على شاشة الموبايل بتتغيّر معاه من غير أي رفع ملفات.
+     */
+    public function manifest(): JsonResponse
+    {
+        $settings = app(SettingsService::class);
+
+        $name = $settings->get('general', 'site_name', config('app.name'));
+        $icon = $settings->get('branding', 'logo_path', '') ?: '/images/logo.png';
+
+        return response()->json([
+            'name' => $name,
+            'short_name' => Str::limit($name, 12, ''),
+            'description' => $settings->get('general', 'tagline', ''),
+            'start_url' => '/'.app()->getLocale(),
+            'scope' => '/',
+            'display' => 'standalone',
+            'dir' => app()->getLocale() === 'ar' ? 'rtl' : 'ltr',
+            'lang' => app()->getLocale(),
+            'background_color' => $settings->get('theme', 'bg', '#FFFFFF'),
+            'theme_color' => $settings->get('theme', 'primary', '#C9A227'),
+            'icons' => [
+                ['src' => url($icon), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+                ['src' => url($icon), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+            ],
+        ], 200, ['Content-Type' => 'application/manifest+json'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

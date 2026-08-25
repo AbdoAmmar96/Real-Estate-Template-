@@ -29,6 +29,8 @@
 
     --font-sans:           var(--font-body), "Cairo", ui-sans-serif, system-ui, sans-serif;
     --font-heading:        var(--font-heading), "Cairo", ui-sans-serif, system-ui, sans-serif;
+    /* خط اسم المنصّة في الهيدر والفوتر — بيقع على خط العناوين لو مش متحدّد */
+    --font-logo:           var(--font-logo), var(--font-heading), "Cairo", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {

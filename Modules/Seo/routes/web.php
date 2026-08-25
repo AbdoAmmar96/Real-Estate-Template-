@@ -14,6 +14,9 @@ use Modules\Seo\Http\Controllers\SitemapController;
 Route::middleware('web')->group(function () {
     Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
     Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
+    // مانيفست التطبيق — بيتولّد من الإعدادات عشان الاسم واللون والأيقونة
+    // يفضلوا مطابقين للهوية من غير ما حد يعدّل ملف بالإيد
+    Route::get('site.webmanifest', [SitemapController::class, 'manifest'])->name('manifest');
 });
 
 /*

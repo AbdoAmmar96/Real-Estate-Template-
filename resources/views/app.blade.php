@@ -9,7 +9,7 @@
     $isRtl        = app()->getLocale() === 'ar';
 
     // الخطوط اللي اتختارت من الداشبورد بتتحمّل من جوجل — مش مثبتة على Cairo
-    $fonts = collect([$theme['font_heading'] ?? null, $theme['font_body'] ?? null])
+    $fonts = collect([$theme['font_heading'] ?? null, $theme['font_body'] ?? null, $theme['font_logo'] ?? null])
         ->filter()
         ->unique()
         ->map(fn ($f) => 'family='.str_replace(' ', '+', trim($f)).':wght@400;500;600;700;800;900')
@@ -31,6 +31,8 @@
     // يحط صورة عريضة في «صورة معاينة اللينك».
     $ogWide      = $meta['imageIsWide'] ?? $ogFallback['imageIsWide'];
     $ogLocale    = $meta['locale'] ?? (($seo['og_locale'] ?? '') ?: ($isRtl ? 'ar_EG' : 'en_US'));
+    // أيقونة التاب: اللوجو المرفوع، وإلا اللوجو المركّب مع الإنجن
+    $favicon     = ($settings->get('branding', 'logo_path', '') ?: '/images/logo.png');
 @endphp
 <html lang="{{ app()->getLocale() }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 <head>
@@ -40,6 +42,16 @@
          Inertia بياخده من الكوكي لكن fetch العادي لأ --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title inertia>{{ $title }}</title>
+
+    {{-- أيقونة التاب والموبايل — من اللوجو المرفوع في «اللوجو والميديا».
+         favicon.ico كان ملف فاضي (صفر بايت) ومفيش لينك ليه أصلًا، فالتاب
+         كان بيطلع بأيقونة المتصفح الافتراضية. --}}
+    <link rel="icon" href="{{ $favicon }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ $favicon }}">
+    <link rel="manifest" href="{{ url('/site.webmanifest') }}">
+    <meta name="theme-color" content="{{ $theme['primary'] ?? '#C9A227' }}">
+    <meta name="application-name" content="{{ $general['site_name'] ?? config('app.name') }}">
+    <meta name="apple-mobile-web-app-title" content="{{ $general['site_name'] ?? config('app.name') }}">
 
     @if ($description)
         <meta name="description" content="{{ $description }}">

@@ -36,7 +36,13 @@ class RolePermissionSeeder extends Seeder
         'manage settings' => 'إعدادات الموقع والهوية',
         'manage users' => 'المستخدمون',
         'manage roles' => 'أدوار فريق العمل',
+        // الصلاحية دي بتفصل المالك عن السوبر أدمن: بس اللي معاه بيشوف
+        // حسابات المالكين ويقدر يعدّل عليها أو يوزّع الدور ده
+        'manage platform' => 'ملكية المنصّة — حسابات المالكين وصلاحياتهم',
     ];
+
+    /** دور المالك — أعلى من السوبر أدمن ومخفي عن أي حد تاني */
+    public const OWNER_ROLE = 'owner';
 
     /**
      * الدور => label اسمه في اللوحة · note وصفه · staff بيفتح اللوحة؟
@@ -44,6 +50,17 @@ class RolePermissionSeeder extends Seeder
      * الترتيب هنا هو ترتيب القايمة في شاشة المستخدمين، فمن الأعلى صلاحية للأقل.
      */
     public const ROLES = [
+        'owner' => [
+            'label' => 'مالك المنصّة',
+            'note' => 'أعلى صلاحية — يرى ويعدّل كل شيء بما فيه حسابات السوبر أدمن',
+            'staff' => true,
+            'permissions' => [
+                'manage catalog', 'publish listings', 'feature listings',
+                'manage listings', 'manage projects', 'manage content', 'manage media',
+                'manage leads', 'view reports', 'manage settings', 'manage users', 'manage roles',
+                'manage platform',
+            ],
+        ],
         'super_admin' => [
             'label' => 'سوبر أدمن',
             'note' => 'كل شيء + الأدوار والصلاحيات',

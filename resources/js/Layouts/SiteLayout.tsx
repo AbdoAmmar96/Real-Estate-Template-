@@ -123,7 +123,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                         )}
                         {/* min-w-0 + truncate: اسم طويل كان بيدفع القائمة ويطفح الهيدر */}
                         <span className="hidden min-w-0 flex-col items-start leading-tight sm:flex">
-                            <span className="truncate text-lg font-black text-secondary">
+                            {/* اسم المنصة بخط العناوين المختار من اللوحة —
+                                هو اسم البراند فمينفعش يتساوى بخط النص العادي */}
+                            <span className="truncate font-logo text-lg font-black tracking-tight text-secondary">
                                 {general.site_name || "BP Engine"}
                             </span>
                             {general.tagline && (
@@ -282,7 +284,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                                         <img src={branding.logo_path} alt="" className="h-9 w-9 object-contain" />
                                     </span>
                                 )}
-                                <span className="text-lg font-black text-text-dark">{general.site_name || "BP Engine"}</span>
+                                <span className="font-logo text-lg font-black tracking-tight text-text-dark">
+                                    {general.site_name || "BP Engine"}
+                                </span>
                             </div>
                             {general.tagline && (
                                 <p className="mt-4 max-w-xs text-sm leading-[1.9] text-white/55">{general.tagline}</p>

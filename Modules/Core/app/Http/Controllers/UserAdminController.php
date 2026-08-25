@@ -31,13 +31,21 @@ class UserAdminController extends ResourceController
      */
     private static function roles(): array
     {
+        $all = RolePermissionSeeder::ROLES;
+
+        // دور المالك مبيتوزّعش إلا من مالك — السوبر أدمن نفسه مبيشوفهوش
+        // في القايمة، فمش هيقدر يرقّي نفسه ولا غيره لملكية المنصّة
+        if (! self::canManagePlatform()) {
+            unset($all[RolePermissionSeeder::OWNER_ROLE]);
+        }
+
         if (self::canManageRoles()) {
-            return RolePermissionSeeder::ROLES;
+            return $all;
         }
 
         $staff = RolePermissionSeeder::staffRoles();
 
-        return array_diff_key(RolePermissionSeeder::ROLES, array_flip($staff));
+        return array_diff_key($all, array_flip($staff));
     }
 
     private static function canManageRoles(): bool
@@ -45,9 +53,28 @@ class UserAdminController extends ResourceController
         return (bool) auth()->user()?->can('manage roles');
     }
 
-    /** مفيش «manage roles» = حسابات الموقع بس، في القايمة وبالـ id */
+    /** ملكية المنصّة — بتفصل المالك عن السوبر أدمن */
+    private static function canManagePlatform(): bool
+    {
+        return (bool) auth()->user()?->can('manage platform');
+    }
+
+    /**
+     * مفيش «manage roles» = حسابات الموقع بس، في القايمة وبالـ id.
+     *
+     * وحسابات المالكين مخفية عن أي حد مش مالك — في القايمة وبالـ id سوا،
+     * فمش بس مش بيشوفها، ده كمان مش بيقدر يفتحها بالرابط المباشر ولا
+     * يعدّلها ولا يحذفها. ResourceController بيطبّق الـ scope على الاتنين.
+     */
     protected function scope(Builder $query): Builder
     {
+        if (! self::canManagePlatform()) {
+            $query->whereDoesntHave(
+                'roles',
+                fn ($q) => $q->where('name', RolePermissionSeeder::OWNER_ROLE),
+            );
+        }
+
         if (self::canManageRoles()) {
             return $query;
         }
