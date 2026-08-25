@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Modules\Compounds\Models\Compound;
 use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
+use Modules\Marketing\Models\FeaturedAd;
 use Modules\Properties\Models\Property;
 
 /**
@@ -185,10 +186,36 @@ class CatalogSeeder extends Seeder
             );
         }
 
+        $this->seedSpotlight();
+
         $this->command?->info(sprintf(
             '  مناطق: %d · مطوّرون: %d · كمبوندات: %d · عقارات: %d',
             Location::count(), Developer::count(), Compound::count(), Property::count(),
         ));
+    }
+
+    /**
+     * إعلان «مشروع تحت الضوء» في الرئيسية.
+     *
+     * البانر بيختفي وهو فاضي، فالتثبيت الجديد كان بيفقد قسمًا كاملًا من
+     * الصفحة. بنرشّح أحدث إطلاق — والأدمن يغيّره من /admin/featured-ads.
+     */
+    private function seedSpotlight(): void
+    {
+        $compound = Compound::where('is_active', true)
+            ->whereNotNull('image')
+            ->orderByDesc('is_new')
+            ->orderBy('sort')
+            ->first();
+
+        if (! $compound) {
+            return;
+        }
+
+        FeaturedAd::updateOrCreate(
+            ['position' => 'spotlight', 'compound_id' => $compound->id],
+            ['status' => 'approved', 'is_active' => true, 'priority' => 10],
+        );
     }
 
     /** صف المواصفات الرقمية → أعمدة الجدول */

@@ -51,6 +51,8 @@ class LocationPageController extends Controller
             'area' => $area,
             'compounds' => $data['compounds'],
             'properties' => $data['properties'],
+            'developers' => $data['developers'],
+            'types' => $data['types'],
             'meta' => Seo::page(
                 $locale,
                 $area['name'],

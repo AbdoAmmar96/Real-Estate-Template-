@@ -1,12 +1,13 @@
 import { Link, usePage } from "@inertiajs/react";
 import { ArrowLeft, Briefcase, Building2, Home } from "lucide-react";
 import CompoundCard from "@/Components/site/CompoundCard";
+import DeveloperLogo from "@/Components/site/DeveloperLogo";
 import LeadForm from "@/Components/site/LeadForm";
 import PageHero from "@/Components/site/PageHero";
 import PropertyCard from "@/Components/site/PropertyCard";
 import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { AreaDetail, Compound, Property, SharedProps } from "@/lib/types";
+import type { AreaDetail, Compound, DeveloperCard, Property, SharedProps, TypeCard } from "@/lib/types";
 
 const copy = {
     ar: {
@@ -21,6 +22,13 @@ const copy = {
         unitsTitle: "وحدات في المنطقة",
         noUnits: "لا توجد وحدات معروضة في هذه المنطقة حاليًا.",
         allUnits: "عرض كل الوحدات",
+        typesTitle: "تصفّح حسب نوع العقار",
+        developersTitle: "مطوّرون في المنطقة",
+        quickLinks: "روابط سريعة:",
+        quickSale: "للبيع",
+        quickRent: "للإيجار",
+        quickComps: "كمبوندات المنطقة",
+        quickAll: "كل الوحدات",
         formTitle: "ابحث لي عن وحدة في هذه المنطقة",
         formNote: "أخبرنا بالميزانية ونوع الوحدة، وسنعود إليك بما هو متاح فعلًا.",
     },
@@ -36,6 +44,13 @@ const copy = {
         unitsTitle: "Units in this area",
         noUnits: "No units listed in this area right now.",
         allUnits: "See all units",
+        typesTitle: "Browse by property type",
+        developersTitle: "Developers in this area",
+        quickLinks: "Quick links:",
+        quickSale: "For sale",
+        quickRent: "For rent",
+        quickComps: "Area compounds",
+        quickAll: "All units",
         formTitle: "Find me a unit in this area",
         formNote: "Tell us your budget and unit type, and we'll come back with what's actually available.",
     },
@@ -45,10 +60,14 @@ export default function AreaPage({
     area,
     compounds,
     properties,
+    developers = [],
+    types = [],
 }: {
     area: AreaDetail;
     compounds: Compound[];
     properties: Property[];
+    developers?: DeveloperCard[];
+    types?: TypeCard[];
 }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
@@ -155,6 +174,69 @@ export default function AreaPage({
                                 {t.noUnits}
                             </p>
                         )}
+                    </div>
+
+                    {/* تصفّح حسب نوع العقار داخل المنطقة */}
+                    {types.length > 0 && (
+                        <div>
+                            <h2 className="mb-5 text-xl font-extrabold text-secondary">{t.typesTitle}</h2>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                                {types.map((ty) => (
+                                    <Link
+                                        key={ty.key}
+                                        href={ty.url}
+                                        className="group flex flex-col items-center gap-1 rounded-2xl border border-gray-100 bg-surface p-4 text-center transition hover:border-primary/50 hover:bg-bg"
+                                    >
+                                        <span className="text-sm font-extrabold text-secondary transition group-hover:text-primary">
+                                            {ty.label}
+                                        </span>
+                                        <span className="text-xs font-bold text-muted">
+                                            {ty.count} {t.units}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* المطوّرون الشغّالون في المنطقة — الرقم في الهيرو بقى وراه كروت */}
+                    {developers.length > 0 && (
+                        <div>
+                            <h2 className="mb-5 text-xl font-extrabold text-secondary">{t.developersTitle}</h2>
+                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                                {developers.map((d) => (
+                                    <Link
+                                        key={d.id}
+                                        href={d.url}
+                                        className="group flex flex-col items-center gap-2.5 rounded-2xl border border-gray-100 bg-surface p-4 text-center transition hover:border-primary/50 hover:bg-bg"
+                                    >
+                                        <DeveloperLogo name={d.name} logo={d.logo} size={48} />
+                                        <span className="text-[13px] font-extrabold leading-snug text-secondary transition group-hover:text-primary">
+                                            {d.name}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* روابط سريعة */}
+                    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-gray-100 bg-surface p-5">
+                        <span className="me-2 text-sm font-extrabold text-secondary">{t.quickLinks}</span>
+                        {[
+                            [t.quickSale, `${listingUrl}&purpose=sale`],
+                            [t.quickRent, `${listingUrl}&purpose=rent`],
+                            [t.quickComps, `/${locale}/compounds?location=${encodeURIComponent(area.name)}`],
+                            [t.quickAll, listingUrl],
+                        ].map(([label, href]) => (
+                            <Link
+                                key={label}
+                                href={href}
+                                className="rounded-full border border-gray-200 px-4 py-2 text-[12px] font-extrabold text-secondary transition hover:border-primary hover:text-primary"
+                            >
+                                {label}
+                            </Link>
+                        ))}
                     </div>
 
                     <div id="lead" className="scroll-mt-24">

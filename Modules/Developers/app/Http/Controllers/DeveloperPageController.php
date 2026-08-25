@@ -52,6 +52,8 @@ class DeveloperPageController extends Controller
             'developer' => $developer,
             'compounds' => $data['compounds'],
             'units' => $data['units'],
+            'pins' => $data['pins'],
+            'types' => $data['types'],
             'meta' => Seo::page(
                 $locale,
                 $developer['name'],

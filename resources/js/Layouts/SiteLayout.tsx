@@ -16,7 +16,7 @@ const socialIcons = [
 ] as const;
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-    const { settings, locale, menu, meta, auth } = usePage<SharedProps>().props;
+    const { settings, locale, menu, meta, auth, footerLinks: seoColumns = [] } = usePage<SharedProps>().props;
     const general = settings.general ?? {};
     const branding = settings.branding ?? {};
     const contact = settings.contact ?? {};
@@ -250,6 +250,29 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
             {/* ------------------------------ Footer (داكن — زي التصميم) ------------------------------ */}
             <footer className="bg-bg-dark">
+                {/* أعمدة الروابط الموسّعة — هي اللي بتوصّل لصفحات الهبوط
+                    والمناطق والمطوّرين، ومصدرها Catalog::footerLinks */}
+                {seoColumns.length > 0 && (
+                    <div className="border-b border-white/10">
+                        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                            {seoColumns.map((col) => (
+                                <div key={col.title} className="flex min-w-0 flex-col gap-3">
+                                    <span className="text-[13px] font-extrabold text-text-dark">{col.title}</span>
+                                    {col.links.map((l) => (
+                                        <Link
+                                            key={l.url}
+                                            href={l.url}
+                                            className="truncate text-sm text-white/55 transition hover:text-primary"
+                                        >
+                                            {l.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="mx-auto max-w-7xl px-4 py-12">
                     <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(var(--footer-cols),minmax(0,1fr))]" style={{ ["--footer-cols" as string]: footerGroups.length + (footerLinks.length > 0 ? 1 : 0) + (hasContact ? 1 : 0) }}>
                         <div>

@@ -21,6 +21,7 @@ export default function MapEmbed({
     lng?: number | null;
     /** اسم المكان — بيظهر تحت الخريطة وفي رابط الفتح في جوجل */
     label?: string;
+    /** "" يعني بدون ترويسة — لما الخريطة تكون جوّه قسم ليه عنوانه */
     title?: string;
     zoom?: number;
     height?: number;
@@ -41,7 +42,7 @@ export default function MapEmbed({
     return (
         <section>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-2xl font-extrabold text-secondary">{heading}</h2>
+                {title !== "" && <h2 className="text-2xl font-extrabold text-secondary">{heading}</h2>}
                 <a
                     href={external}
                     target="_blank"

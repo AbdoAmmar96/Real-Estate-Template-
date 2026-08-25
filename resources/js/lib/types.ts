@@ -40,6 +40,8 @@ export interface SharedProps {
     settings: SettingsGroups;
     locale: "ar" | "en";
     menu: { header: MenuLink[]; footer: MenuLink[] };
+    /** أعمدة روابط الفوتر — شراء · إيجار · مناطق · مطوّرون · كمبوندات · الأكثر بحثًا */
+    footerLinks?: { title: string; links: { label: string; url: string }[] }[];
     /** ميتا الصفحة — بتترندر في السيرفر، وبتستخدم هنا لعنوان التاب بس */
     meta?: { title: string; description: string; canonical: string };
     auth: { user: AuthUser | null };
@@ -61,6 +63,8 @@ export interface Property {
     slug: string;
     title: string;
     area: string;
+    /** سلَج المنطقة — عشان اسمها يبقى لينك مش نص ميت */
+    areaSlug?: string;
     purpose: string;
     /** نوع العقار باللغة المعروضة (شقة / Apartment) */
     type: string;
@@ -80,6 +84,8 @@ export interface Property {
     image: string;
     /** مطوّر الوحدة، وإلا مطوّر الكمبوند — فاضي لو الاتنين مش متحددين */
     developer: string;
+    /** سلَج المطوّر — نفس السبب */
+    developerSlug?: string;
 }
 
 /** العقار كامل في صفحة التفاصيل */
@@ -96,6 +102,9 @@ export interface PropertyDetail extends Property {
     /** الصورة الرئيسية أول عنصر دايمًا */
     gallery: string[];
     compound: { name: string; slug: string; developer: string; delivery: string } | null;
+    /** إحداثيات المشروع — الوحدة بتورّثها، null يعني الخريطة بتختفي */
+    lat: number | null;
+    lng: number | null;
 }
 
 export interface Compound {
@@ -142,6 +151,14 @@ export interface CompoundDetail extends Compound {
     units: number;
     developerId?: number | null;
     locationId?: number | null;
+}
+
+/** موقع مشروع على خريطة صفحة المطوّر */
+export interface MapPin {
+    name: string;
+    lat: number;
+    lng: number;
+    url: string;
 }
 
 /** كارت «تصفّح حسب النوع» — بعدد الوحدات الحقيقي ورابط مفلتر */

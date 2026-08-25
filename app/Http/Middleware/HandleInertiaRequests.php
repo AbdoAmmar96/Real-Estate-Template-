@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Catalog;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Modules\Core\Models\MenuItem;
@@ -29,6 +30,11 @@ class HandleInertiaRequests extends Middleware
             'settings' => fn () => app(SettingsService::class)->public(),
             'locale' => fn () => app()->getLocale(),
             'menu' => fn () => MenuItem::nav(app()->getLocale()),
+            // أعمدة الروابط في الفوتر (شراء · إيجار · مناطق · مطوّرون …)
+            // متكاشة لساعة، ومبتتحسبش أصلًا في طلبات اللوحة
+            'footerLinks' => fn () => $request->is('*/admin*', 'admin*')
+                ? []
+                : Catalog::footerLinks(app()->getLocale()),
 
             'auth' => [
                 // can = صلاحيات المستخدم، عشان اللوحة تخفي اللي مش مسموح له بيه

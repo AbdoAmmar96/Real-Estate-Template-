@@ -5,10 +5,11 @@ import CompoundCard from "@/Components/site/CompoundCard";
 import DeveloperLogo from "@/Components/site/DeveloperLogo";
 import LeadForm from "@/Components/site/LeadForm";
 import PageHero from "@/Components/site/PageHero";
+import ProjectsMap from "@/Components/site/ProjectsMap";
 import PropertyCard from "@/Components/site/PropertyCard";
 import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { Compound, DeveloperDetail, Property, SharedProps } from "@/lib/types";
+import type { Compound, DeveloperDetail, MapPin as Pin, Property, SharedProps, TypeCard } from "@/lib/types";
 
 const copy = {
     ar: {
@@ -24,6 +25,8 @@ const copy = {
         projectsTitle: "مشاريع المطوّر",
         noProjects: "لا توجد مشاريع معروضة لهذا المطوّر حاليًا.",
         unitsTitle: "وحدات متاحة",
+        typesTitle: "أنواع الوحدات",
+        mapTitle: "مواقع المشاريع على الخريطة",
         allUnits: "عرض كل الوحدات",
         formTitle: "استفسر عن مشاريع المطوّر",
         formNote: "أخبرنا بالمنطقة والميزانية، وسنرشّح لك من مشاريعه ما يناسبك.",
@@ -41,6 +44,8 @@ const copy = {
         projectsTitle: "Developer projects",
         noProjects: "No projects listed for this developer right now.",
         unitsTitle: "Available units",
+        typesTitle: "Unit types",
+        mapTitle: "Project locations on the map",
         allUnits: "See all units",
         formTitle: "Ask about this developer's projects",
         formNote: "Tell us your area and budget and we'll shortlist what fits from their projects.",
@@ -51,10 +56,14 @@ export default function DeveloperPage({
     developer,
     compounds,
     units,
+    pins = [],
+    types = [],
 }: {
     developer: DeveloperDetail;
     compounds: Compound[];
     units: Property[];
+    pins?: Pin[];
+    types?: TypeCard[];
 }) {
     const { locale, settings } = usePage<SharedProps>().props;
     const ar = locale === "ar";
@@ -175,8 +184,10 @@ export default function DeveloperPage({
                                     <Home size={19} className="text-primary" />
                                     {t.unitsTitle}
                                 </h2>
+                                {/* فلتر المطوّر مش بحث نصي — البحث النصي بيجيب
+                                    وحدات فيها الاسم في العنوان وهي مش بتاعته */}
                                 <Link
-                                    href={`/${locale}/properties?q=${encodeURIComponent(developer.name)}`}
+                                    href={`/${locale}/properties?developer=${encodeURIComponent(developer.name)}`}
                                     className="flex items-center gap-2 text-[13px] font-extrabold text-secondary transition hover:text-primary"
                                 >
                                     {t.allUnits}
@@ -193,6 +204,32 @@ export default function DeveloperPage({
                             </div>
                         </div>
                     )}
+
+                    {/* أنواع الوحدات المتاحة عند المطوّر */}
+                    {types.length > 0 && (
+                        <div>
+                            <h2 className="mb-5 text-xl font-extrabold text-secondary">{t.typesTitle}</h2>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                                {types.map((ty) => (
+                                    <Link
+                                        key={ty.key}
+                                        href={ty.url}
+                                        className="group flex flex-col items-center gap-1 rounded-2xl border border-gray-100 bg-surface p-4 text-center transition hover:border-primary/50 hover:bg-bg"
+                                    >
+                                        <span className="text-sm font-extrabold text-secondary transition group-hover:text-primary">
+                                            {ty.label}
+                                        </span>
+                                        <span className="text-xs font-bold text-muted">
+                                            {ty.count} {t.units}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* مواقع المشاريع على الخريطة */}
+                    <ProjectsMap pins={pins} title={t.mapTitle} />
 
                     <div id="lead" className="scroll-mt-24">
                         <h2 className="mb-1 text-xl font-extrabold text-secondary">{t.formTitle}</h2>

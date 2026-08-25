@@ -4,6 +4,7 @@ namespace App\Support;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ use Modules\Developers\Models\Developer;
 use Modules\Locations\Models\Location;
 use Modules\Properties\Models\Property;
 use Modules\Reviews\Models\Review;
+use Modules\Seo\Models\LandingPage;
 
 /**
  * مصدر بيانات الموقع العام — بيقرا من الجداول الحقيقية.
@@ -525,6 +527,18 @@ class Catalog
             ->limit(6)
             ->get();
 
+        // مواقع مشاريع المطوّر على الخريطة — المشروع بلا إحداثيات بيتشال
+        $pins = $compounds
+            ->filter(fn (Compound $c) => $c->latitude !== null && $c->longitude !== null)
+            ->map(fn (Compound $c) => [
+                'name' => $c->t('name', $locale),
+                'lat' => (float) $c->latitude,
+                'lng' => (float) $c->longitude,
+                'url' => $c->slug ? "/{$locale}/compounds/{$c->slug}" : '',
+            ])
+            ->values()
+            ->all();
+
         return [
             'developer' => $developer->toDetail($locale) + [
                 'units' => $units->count(),
@@ -532,6 +546,8 @@ class Catalog
             ],
             'compounds' => $compounds->map(fn (Compound $c) => $c->toCard($locale))->all(),
             'units' => $units->map(fn (Property $p) => $p->toCard($locale))->all(),
+            'pins' => $pins,
+            'types' => self::typeCards($locale, '', '', $developer->name),
         ];
     }
 
@@ -759,9 +775,10 @@ class Catalog
      *
      * @param  string  $purpose  sale · rent · '' للاتنين
      * @param  string  $location  اسم المنطقة لو الكروت جوّه صفحة منطقة
+     * @param  string  $developer  اسم المطوّر لو الكروت جوّه صفحة مطوّر
      * @return list<array<string, mixed>>
      */
-    public static function typeCards(string $locale, string $purpose = '', string $location = ''): array
+    public static function typeCards(string $locale, string $purpose = '', string $location = '', string $developer = ''): array
     {
         $en = $locale === 'en';
         $out = [];
@@ -777,6 +794,7 @@ class Catalog
                 'type' => $type,
                 'purpose' => in_array($purpose, ['sale', 'rent'], true) ? $purpose : '',
                 'location' => $location,
+                'developer' => $developer,
             ]);
 
             $count = $demo === null
@@ -791,6 +809,7 @@ class Catalog
                 'type' => $type,
                 'purpose' => $filters['purpose'] ?? '',
                 'location' => $location,
+                'developer' => $developer,
             ]);
 
             $out[] = [
@@ -806,6 +825,89 @@ class Catalog
         usort($out, fn ($a, $b) => $b['count'] <=> $a['count']);
 
         return $out;
+    }
+
+    /**
+     * أعمدة روابط الفوتر: شراء · إيجار · المناطق · المطوّرون · الكمبوندات ·
+     * الأكثر بحثًا.
+     *
+     * ده اللي بيوصّل لصفحات الهبوط البرمجية وصفحات المناطق والمطوّرين —
+     * من غيره الصفحات دي بتفضل في السايت ماب ومفيش لينك داخلي بيوديها.
+     *
+     * متكاش لدقيقة: بيترندر في كل صفحة، والمحتوى ده مش بيتغيّر كل ثانية.
+     *
+     * @return list<array{title: string, links: list<array{label: string, url: string}>}>
+     */
+    public static function footerLinks(string $locale): array
+    {
+        return Cache::remember("footer.links.{$locale}", now()->addHour(), function () use ($locale) {
+            $en = $locale === 'en';
+
+            $typeGroup = fn (string $purpose, string $title) => [
+                'title' => $title,
+                'links' => array_map(
+                    fn (array $t) => ['label' => $t['label'], 'url' => $t['url']],
+                    array_slice(self::typeCards($locale, $purpose), 0, 8),
+                ),
+            ];
+
+            $groups = [
+                $typeGroup('sale', $en ? 'Buy property' : 'شراء عقارات'),
+                $typeGroup('rent', $en ? 'Rent property' : 'إيجار عقارات'),
+                [
+                    'title' => $en ? 'Areas' : 'المناطق',
+                    'links' => array_map(
+                        fn (array $a) => ['label' => $a['name'], 'url' => $a['url']],
+                        array_slice(self::allAreas($locale), 0, 8),
+                    ),
+                ],
+                [
+                    'title' => $en ? 'Developers' : 'المطوّرون',
+                    'links' => array_map(
+                        fn (array $d) => ['label' => $d['name'], 'url' => $d['url']],
+                        array_slice(self::developers($locale, 8), 0, 8),
+                    ),
+                ],
+                [
+                    'title' => $en ? 'Compounds' : 'الكمبوندات',
+                    'links' => array_map(
+                        fn (array $c) => [
+                            'label' => $c['name'],
+                            'url' => $c['slug'] ? "/{$locale}/compounds/{$c['slug']}" : "/{$locale}/compounds",
+                        ],
+                        array_slice(self::compounds($locale, 8), 0, 8),
+                    ),
+                ],
+                self::popularSearches($locale),
+            ];
+
+            // العمود الفاضي بيتشال — عنوان بلا روابط تحته بيبان مكسور
+            return array_values(array_filter($groups, fn (array $g) => $g['links'] !== []));
+        });
+    }
+
+    /** «الأكثر بحثًا» — من صفحات الهبوط المنشورة، وإلا من الأنواع */
+    private static function popularSearches(string $locale): array
+    {
+        $title = $locale === 'en' ? 'Most searched' : 'الأكثر بحثًا';
+
+        if (! Schema::hasTable('seo_landing_pages')) {
+            return ['title' => $title, 'links' => []];
+        }
+
+        $rows = LandingPage::query()
+            ->where('is_active', true)
+            ->orderByDesc('units_count')
+            ->limit(8)
+            ->get();
+
+        return [
+            'title' => $title,
+            'links' => $rows->map(fn (LandingPage $p) => [
+                'label' => $p->heading($locale),
+                'url' => "/{$locale}/properties/{$p->slug}",
+            ])->all(),
+        ];
     }
 
     /** مشروعات تانية لنفس المطوّر — من غير المشروع المفتوح */
@@ -905,13 +1007,14 @@ class Catalog
         $type = trim((string) ($filters['type'] ?? ''));
         $q = trim((string) ($filters['q'] ?? ''));
         $location = trim((string) ($filters['location'] ?? ''));
+        $developer = trim((string) ($filters['developer'] ?? ''));
 
         // الفلتر جاي بالعربي أو بالإنجليزي، والمخزّن عربي دايمًا
         if ($type !== '' && ! isset(Property::TYPES[$type])) {
             $type = array_flip(Property::TYPES)[$type] ?? $type;
         }
 
-        $rows = array_values(array_filter($rows, function (array $row) use ($category, $purpose, $type, $q, $location, $filters) {
+        $rows = array_values(array_filter($rows, function (array $row) use ($category, $purpose, $type, $q, $location, $developer, $filters) {
             if ($category !== '' && ($row['category'] ?? '') !== $category) {
                 return false;
             }
@@ -931,6 +1034,10 @@ class Catalog
             }
 
             if ($location !== '' && ($row['area'] ?? '') !== $location) {
+                return false;
+            }
+
+            if ($developer !== '' && ($row['developer'] ?? '') !== $developer) {
                 return false;
             }
 

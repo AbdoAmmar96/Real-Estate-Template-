@@ -21,9 +21,11 @@ import Gallery from "@/Components/site/Gallery";
 import AdStrip, { type Ad } from "@/Components/site/AdStrip";
 import { pushRecent } from "@/Components/site/RecentlyViewed";
 import LeadForm from "@/Components/site/LeadForm";
+import MapEmbed from "@/Components/site/MapEmbed";
 import PageHero from "@/Components/site/PageHero";
 import PropertyCard from "@/Components/site/PropertyCard";
 import Reveal from "@/Components/site/Reveal";
+import ShareButtons from "@/Components/site/ShareButtons";
 import SiteLayout from "@/Layouts/SiteLayout";
 import type { Property, PropertyDetail, SharedProps } from "@/lib/types";
 
@@ -41,6 +43,7 @@ const copy = {
         baths: "الحمامات",
         size: "المساحة",
         area: "المنطقة",
+        developer: "المطوّر",
         ref: "كود الوحدة",
         project: "المشروع",
         delivery: "التسليم",
@@ -78,6 +81,7 @@ const copy = {
         baths: "Bathrooms",
         size: "Size",
         area: "Area",
+        developer: "Developer",
         ref: "Reference",
         project: "Project",
         delivery: "Delivery",
@@ -325,19 +329,34 @@ export default function PropertyPage({
                             </Reveal>
                         )}
 
+                        {/* الموقع على الخريطة — بيبان للوحدات جوّه مشاريع
+                            متظبّطة إحداثياتها، وبيختفي لغيرها */}
+                        <Reveal>
+                            <MapEmbed
+                                lat={property.lat}
+                                lng={property.lng}
+                                label={[property.compound?.name, property.area].filter(Boolean).join(" · ")}
+                                height={340}
+                            />
+                        </Reveal>
+
                         <div id="lead" className="scroll-mt-24">
                             <h2 className="mb-1 text-xl font-extrabold text-secondary">{t.formTitle}</h2>
                             <p className="mb-4 text-[13px] text-muted">{t.formNote}</p>
                             <LeadForm propertyId={property.id} source="property" subject={property.title} />
                         </div>
 
-                        <Link
-                            href={`/${locale}/properties`}
-                            className="flex w-fit items-center gap-2 text-[13px] font-extrabold text-secondary transition hover:text-primary"
-                        >
-                            <ArrowLeft size={15} className="text-primary ltr:rotate-180" />
-                            {t.back}
-                        </Link>
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-6">
+                            <Link
+                                href={`/${locale}/properties`}
+                                className="flex w-fit items-center gap-2 text-[13px] font-extrabold text-secondary transition hover:text-primary"
+                            >
+                                <ArrowLeft size={15} className="text-primary ltr:rotate-180" />
+                                {t.back}
+                            </Link>
+
+                            <ShareButtons title={property.title} />
+                        </div>
                     </div>
 
                     {/* ---------- العمود الجانبي ---------- */}

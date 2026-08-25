@@ -1,6 +1,7 @@
 import { router, usePage } from "@inertiajs/react";
 import { Building2, CheckCircle2, ChevronDown, Clock, Mail, MessageCircle, Phone, Star } from "lucide-react";
 import { useState } from "react";
+import MapEmbed from "@/Components/site/MapEmbed";
 import PageHero from "@/Components/site/PageHero";
 import Reveal from "@/Components/site/Reveal";
 import SiteLayout from "@/Layouts/SiteLayout";
@@ -85,6 +86,11 @@ export default function Contact({ options }: { options: ContactOptions }) {
     const contact = settings.contact ?? {};
     const wa = contact.whatsapp;
     const placeId = settings.integrations?.google_place_id;
+
+    // إحداثيات المكتب من الإعدادات — نص، فبنحوّلها ونتأكد إنها رقم
+    const toCoord = (v?: string) => (v && Number.isFinite(Number(v)) ? Number(v) : null);
+    const officeLat = toCoord(contact.latitude);
+    const officeLng = toCoord(contact.longitude);
 
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
@@ -396,6 +402,20 @@ export default function Contact({ options }: { options: ContactOptions }) {
                             );
                         })}
                     </div>
+                </div>
+            </section>
+
+            {/* ---------- موقعنا على الخريطة ---------- */}
+            {/* الإحداثيات من إعدادات «تواصل» — القسم بيختفي لو مش متكتوبة */}
+            <section className="bg-surface px-4 pb-16">
+                <div className="mx-auto max-w-7xl">
+                    <MapEmbed
+                        lat={officeLat}
+                        lng={officeLng}
+                        label={settings.contact?.address}
+                        title={ar ? "موقعنا على الخريطة" : "Our location on the map"}
+                        zoom={15}
+                    />
                 </div>
             </section>
         </SiteLayout>
