@@ -71,6 +71,11 @@ class AdSlot
                 'adId' => $ad->id,
                 'kind' => 'compound',
                 'url' => "/{$locale}/ads/{$ad->id}",
+                // بانر «مشروع تحت الضوء» بيعرض أزرار الماستر بلان والبروشور،
+                // فمحتاج الحقلين دول جنب بيانات الكارت
+                'masterPlan' => $compound->master_plan_image ?: '',
+                'brochure' => $compound->brochure_path ?: '',
+                'href' => $compound->slug ? "/{$locale}/compounds/{$compound->slug}" : '',
             ];
         }
 

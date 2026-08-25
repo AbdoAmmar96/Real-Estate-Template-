@@ -49,6 +49,8 @@ class Catalog
         'garden' => 'bool',
         'roof' => 'bool',
         'dressing' => 'bool',
+        // كمبوندات بس — «إطلاق جديد»
+        'new' => 'bool',
     ];
 
     /** خيارات الترتيب — المفتاح بيتحط في الرابط */
@@ -69,7 +71,10 @@ class Catalog
         // الفولباك بيتحدد بجدول فاضي مش بنتيجة فاضية،
         // عشان بحث ملقاش حاجة ميرجّعش بيانات تجريبية بدل "مفيش نتايج"
         if (! Property::query()->exists()) {
-            $demo = self::withDemoSlugs(DemoContent::properties($locale), 'property');
+            $demo = self::filterDemoProperties(
+                self::withDemoSlugs(DemoContent::properties($locale), 'property'),
+                $filters,
+            );
 
             return $limit ? array_slice($demo, 0, $limit) : $demo;
         }
@@ -248,7 +253,7 @@ class Catalog
                 'beds' => 'Beds', 'baths' => 'Baths', 'down_max' => 'Max down',
                 'monthly_max' => 'Max instalment', 'years_max' => 'Max years',
                 'delivery' => 'Delivered before', 'featured' => 'Featured', 'garden' => 'Garden',
-                'roof' => 'Roof', 'dressing' => 'Dressing room']
+                'roof' => 'Roof', 'dressing' => 'Dressing room', 'new' => 'New launch']
             : ['q' => 'بحث', 'type' => 'النوع', 'location' => 'المنطقة', 'purpose' => 'الغرض',
                 'category' => 'القسم', 'finishing' => 'التشطيب', 'developer' => 'المطوّر',
                 'compound' => 'المشروع', 'sort' => 'الترتيب', 'price_min' => 'سعر من',
@@ -256,7 +261,7 @@ class Catalog
                 'beds' => 'غرف', 'baths' => 'حمامات', 'down_max' => 'أقصى مقدم',
                 'monthly_max' => 'أقصى قسط', 'years_max' => 'أقصى سنوات',
                 'delivery' => 'تسليم قبل', 'featured' => 'مميّزة', 'garden' => 'حديقة',
-                'roof' => 'روف', 'dressing' => 'غرفة ملابس'];
+                'roof' => 'روف', 'dressing' => 'غرفة ملابس', 'new' => 'إطلاق جديد'];
 
         $shown = match (self::FILTER_SCHEMA[$key]) {
             'bool' => $en ? 'yes' : 'نعم',
@@ -336,7 +341,18 @@ class Catalog
                     ->orWhere('name_en', 'like', "%{$q}%")
                     ->orWhereHas('developer', fn ($d) => $d->where('name', 'like', "%{$q}%"))))
             ->when(trim((string) ($filters['location'] ?? '')), fn ($query, $loc) => $query
-                ->whereHas('location', fn ($s) => $s->where('name', $loc)->orWhere('name_en', $loc)))
+                ->whereHas('location', fn ($s) => $s->where('name', $loc)->orWhere('name_en', $loc)->orWhere('slug', $loc)))
+            ->when(trim((string) ($filters['developer'] ?? '')), fn ($query, $dev) => $query
+                ->whereHas('developer', fn ($s) => $s->where('name', $dev)->orWhere('name_en', $dev)->orWhere('slug', $dev)))
+            // التسليم والتقسيط نصوص معروضة («Q4 2027» / «8 سنوات»)، فالمقارنة
+            // بتتعمل على أول رقم فيهم — المستخدم بيختار سنة أو عدد سنين
+            ->when((int) ($filters['delivery'] ?? 0), fn ($query, $year) => $query
+                ->whereNotNull('delivery')
+                ->whereRaw("cast(replace(replace(delivery, 'Q', ''), ' ', '') as integer) % 10000 <= ?", [$year]))
+            ->when((int) ($filters['years_max'] ?? 0), fn ($query, $years) => $query
+                ->whereNotNull('installment_years')
+                ->whereRaw('cast(installment_years as integer) <= ?', [$years]))
+            ->when(! empty($filters['new']), fn ($query) => $query->where('is_new', true))
             ->orderBy('sort')->orderByDesc('id')
             ->when($limit, fn ($q) => $q->limit($limit))
             ->get();
@@ -403,18 +419,34 @@ class Catalog
         return $out;
     }
 
+    /**
+     * وحدات منطقة — المربوطة بيها مباشرة + اللي جوّه مشاريعها.
+     *
+     * الوحدة جوّه كمبوند بتورّث منطقته لو مش متكتبة عليها، والكارت وفلتر
+     * البحث الاتنين بيعاملوها كده. لازم صفحة المنطقة وعدّادها يمشوا على
+     * نفس القاعدة، وإلا الصفحة بتقول «لا توجد وحدات» واللينك اللي جنبها
+     * بيرجّع نفس الوحدات.
+     */
+    private static function areaUnits(int $locationId): Builder
+    {
+        return Property::published()->where(fn ($q) => $q
+            ->where('location_id', $locationId)
+            ->orWhere(fn ($inner) => $inner
+                ->whereNull('location_id')
+                ->whereHas('compound', fn ($c) => $c->where('location_id', $locationId))));
+    }
+
     /** بطاقات المناطق في الرئيسية — بعدد العقارات الحقيقي */
     public static function areas(string $locale, ?int $limit = 3): array
     {
         $rows = Location::query()
             ->where('is_active', true)
-            ->withCount(['properties' => fn ($q) => $q->published()])
             ->orderBy('sort')->orderBy('id')
             ->when($limit, fn ($q) => $q->limit($limit))
             ->get();
 
         if ($rows->isEmpty()) {
-            $demo = DemoContent::areas($locale);
+            $demo = self::demoAreas($locale);
 
             return $limit ? array_slice($demo, 0, $limit) : $demo;
         }
@@ -422,8 +454,21 @@ class Catalog
         $ar = $locale !== 'en';
 
         return $rows->map(fn (Location $l) => $l->toCard($locale) + [
-            'count' => $l->properties_count.' '.($ar ? 'وحدة' : 'units'),
+            'count' => self::areaUnits($l->id)->count().' '.($ar ? 'وحدة' : 'units'),
         ])->all();
+    }
+
+    /**
+     * مناطق تجريبية بـ slug ورابط — الرئيسية كانت بترجّعها بدون رابط،
+     * فكارت المنطقة كان بيبان وهو مش شغّال.
+     */
+    private static function demoAreas(string $locale): array
+    {
+        return array_map(function (array $row) use ($locale) {
+            $slug = Str::slug((string) $row['name']) ?: 'area-'.$row['id'];
+
+            return $row + ['slug' => $slug, 'url' => "/{$locale}/properties?location=".rawurlencode((string) $row['name'])];
+        }, DemoContent::areas($locale));
     }
 
     /**
@@ -496,10 +541,7 @@ class Catalog
         $location = Location::query()
             ->where('is_active', true)
             ->where('slug', $slug)
-            ->withCount([
-                'properties' => fn ($q) => $q->published(),
-                'compounds' => fn ($q) => $q->where('is_active', true),
-            ])
+            ->withCount(['compounds' => fn ($q) => $q->where('is_active', true)])
             ->first();
 
         if (! $location) {
@@ -513,21 +555,33 @@ class Catalog
             ->orderBy('sort')->orderByDesc('id')
             ->get();
 
-        $properties = Property::published()
-            ->where('location_id', $location->id)
-            ->with('location')
+        $units = self::areaUnits($location->id);
+
+        $properties = (clone $units)
+            ->with(['location', 'developer', 'compound.developer', 'compound.location'])
             ->orderBy('sort')->orderByDesc('id')
-            ->limit(6)
+            ->limit(9)
+            ->get();
+
+        // المطوّرون الشغّالين في المنطقة — بكروتهم مش بعددهم بس،
+        // عشان الرقم اللي في الهيرو يبقى وراه صفحة يتصفّحها الزائر
+        $developers = Developer::query()
+            ->where('is_active', true)
+            ->whereIn('id', $compounds->pluck('developer_id')->filter()->unique())
+            ->withCount(['compounds' => fn ($q) => $q->where('is_active', true)->where('location_id', $location->id)])
+            ->orderBy('sort')->orderBy('id')
             ->get();
 
         return [
             'area' => $location->toDetail($locale) + [
-                'properties' => (int) $location->properties_count,
+                'properties' => (clone $units)->count(),
                 'compounds' => (int) $location->compounds_count,
-                'developers' => $compounds->pluck('developer_id')->filter()->unique()->count(),
+                'developers' => $developers->count(),
             ],
             'compounds' => $compounds->map(fn (Compound $c) => $c->toCard($locale))->all(),
             'properties' => $properties->map(fn (Property $p) => $p->toCard($locale))->all(),
+            'developers' => $developers->map(fn (Developer $d) => $d->toCard($locale))->all(),
+            'types' => self::typeCards($locale, '', $location->name),
         ];
     }
 
@@ -536,21 +590,28 @@ class Catalog
     {
         $rows = Location::query()
             ->where('is_active', true)
-            ->withCount([
-                'properties' => fn ($q) => $q->published(),
-                'compounds' => fn ($q) => $q->where('is_active', true),
-            ])
+            ->withCount(['compounds' => fn ($q) => $q->where('is_active', true)])
             ->orderByDesc('is_featured')
             ->orderBy('sort')->orderBy('id')
             ->get();
 
+        if ($rows->isEmpty()) {
+            // الرئيسية بترجع لمناطق تجريبية، فلو الصفحة دي رجّعت فاضي
+            // يبقى الموقع بيعرض مناطق ولينكاتها بتوديّ لصفحة بتقول مفيش
+            return self::demoAreas($locale);
+        }
+
         $ar = $locale !== 'en';
 
-        return $rows->map(fn (Location $l) => $l->toCard($locale) + [
-            'count' => $l->properties_count.' '.($ar ? 'وحدة' : 'units'),
-            'compounds' => (int) $l->compounds_count,
-            'properties' => (int) $l->properties_count,
-        ])->all();
+        return $rows->map(function (Location $l) use ($locale, $ar) {
+            $units = self::areaUnits($l->id)->count();
+
+            return $l->toCard($locale) + [
+                'count' => $units.' '.($ar ? 'وحدة' : 'units'),
+                'compounds' => (int) $l->compounds_count,
+                'properties' => $units,
+            ];
+        })->all();
     }
 
     /**
@@ -627,15 +688,30 @@ class Catalog
             $demo = self::withDemoSlugs(DemoContent::compounds($locale), 'compound');
             $hit = collect($demo)->firstWhere('slug', $slug);
 
-            return $hit ? $hit + ['features' => [], 'gallery' => [$hit['image']]] : null;
+            return $hit ? $hit + [
+                'features' => [], 'gallery' => [$hit['image']], 'faqs' => [],
+                'masterPlan' => '', 'brochure' => '', 'lat' => null, 'lng' => null,
+                'resale' => '', 'units' => 0, 'developerSlug' => '', 'developerLogo' => '', 'areaSlug' => '',
+                'developerId' => null, 'locationId' => null,
+            ] : null;
         }
 
-        return Compound::query()
+        $compound = Compound::query()
             ->where('is_active', true)
             ->where('slug', $slug)
             ->with(['developer', 'location'])
-            ->first()
-            ?->toDetail($locale);
+            ->first();
+
+        if (! $compound) {
+            return null;
+        }
+
+        // الـ id بيمشي مع الـ payload عشان أقسام «مشروعات نفس المطوّر»
+        // و«كمبوندات قريبة» تدوّر بالمفتاح مش بالاسم
+        return $compound->toDetail($locale) + [
+            'developerId' => $compound->developer_id,
+            'locationId' => $compound->location_id,
+        ];
     }
 
     /** عقارات شبه المعروض — نفس المنطقة أو نفس النوع */
@@ -658,13 +734,18 @@ class Catalog
         return $rows->map(fn (Property $p) => $p->toCard($locale))->all();
     }
 
-    /** الوحدات المتاحة جوّه كمبوند */
-    public static function compoundUnits(string $locale, int $compoundId, ?int $limit = null): array
+    /**
+     * الوحدات المتاحة جوّه كمبوند — بتقبل نفس فلاتر صفحة العقارات
+     * عشان «استكشف العقارات في المشروع» يشتغل بنفس منطق البحث العام.
+     */
+    public static function compoundUnits(string $locale, int $compoundId, ?int $limit = null, array $filters = []): array
     {
         $rows = Property::published()
             ->where('compound_id', $compoundId)
             ->with(['location', 'developer', 'compound.developer', 'compound.location'])
-            ->orderBy('sort')->orderByDesc('id')
+            // الكمبوند متحدّد بالفعل، فأي فلتر مشروع من الرابط بيتشال
+            ->tap(fn ($q) => self::applyPropertyFilters($q, ['compound' => ''] + $filters))
+            ->tap(fn ($q) => self::applyPropertySort($q, (string) ($filters['sort'] ?? '')))
             ->when($limit, fn ($q) => $q->limit($limit))
             ->get();
 
@@ -672,8 +753,106 @@ class Catalog
     }
 
     /**
+     * كروت «تصفّح حسب النوع» — كل نوع بعدد وحداته الحقيقي ورابط لصفحة
+     * الهبوط بتاعته. الأنواع اللي مالهاش وحدة مبتظهرش: الكارت بيوعد
+     * بنتايج، فالكارت الفاضي أسوأ من غيابه.
+     *
+     * @param  string  $purpose  sale · rent · '' للاتنين
+     * @param  string  $location  اسم المنطقة لو الكروت جوّه صفحة منطقة
+     * @return list<array<string, mixed>>
+     */
+    public static function typeCards(string $locale, string $purpose = '', string $location = ''): array
+    {
+        $en = $locale === 'en';
+        $out = [];
+
+        // على تثبيت جديد بنعدّ من نفس الوحدات التجريبية اللي الصفحات
+        // بتعرضها، عشان الرقم على الكارت يطابق النتايج ورا اللينك
+        $demo = Property::query()->exists()
+            ? null
+            : self::withDemoSlugs(DemoContent::properties($locale), 'property');
+
+        foreach (Property::TYPE_PLURALS as $type => $plural) {
+            $filters = array_filter([
+                'type' => $type,
+                'purpose' => in_array($purpose, ['sale', 'rent'], true) ? $purpose : '',
+                'location' => $location,
+            ]);
+
+            $count = $demo === null
+                ? self::countProperties($filters)
+                : count(self::filterDemoProperties($demo, $filters));
+
+            if ($count === 0) {
+                continue;
+            }
+
+            $query = array_filter([
+                'type' => $type,
+                'purpose' => $filters['purpose'] ?? '',
+                'location' => $location,
+            ]);
+
+            $out[] = [
+                'key' => $plural['slug'],
+                'type' => $type,
+                'label' => $plural[$en ? 'en' : 'ar'],
+                'count' => $count,
+                'category' => in_array($type, Property::COMMERCIAL_TYPES, true) ? 'commercial' : 'residential',
+                'url' => "/{$locale}/properties?".http_build_query($query),
+            ];
+        }
+
+        usort($out, fn ($a, $b) => $b['count'] <=> $a['count']);
+
+        return $out;
+    }
+
+    /** مشروعات تانية لنفس المطوّر — من غير المشروع المفتوح */
+    public static function developerCompounds(string $locale, ?int $developerId, int $exceptId, int $limit = 6): array
+    {
+        if (! $developerId) {
+            return [];
+        }
+
+        return Compound::query()
+            ->where('is_active', true)
+            ->where('developer_id', $developerId)
+            ->whereKeyNot($exceptId)
+            ->with(['developer', 'location'])
+            ->orderBy('sort')->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Compound $c) => $c->toCard($locale))
+            ->all();
+    }
+
+    /** كمبوندات في نفس المنطقة — «كمبوندات قريبة من ...» */
+    public static function nearbyCompounds(string $locale, ?int $locationId, int $exceptId, int $limit = 6): array
+    {
+        if (! $locationId) {
+            return [];
+        }
+
+        return Compound::query()
+            ->where('is_active', true)
+            ->where('location_id', $locationId)
+            ->whereKeyNot($exceptId)
+            ->with(['developer', 'location'])
+            ->orderBy('sort')->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Compound $c) => $c->toCard($locale))
+            ->all();
+    }
+
+    /**
      * بيانات DemoContent مالهاش slug — بنولّده هنا عشان كروت التثبيت الجديد
      * (قبل الـ seed) تفضل تفتح صفحة تفاصيل. ثابت مع اختلاف اللغة.
+     *
+     * وبنكمّل كمان المفاتيح اللي toCard() بيوعد بيها (النوع والقسم والسعر
+     * الرقمي)، عشان الكارت التجريبي يبقى نفس شكل الكارت الحقيقي بالظبط
+     * ويقدر يتفلتر بنفس الفلاتر.
      */
     private static function withDemoSlugs(array $rows, string $kind): array
     {
@@ -682,10 +861,123 @@ class Catalog
                 ? Str::slug((string) ($row['ref'] ?? ''))
                 : $kind.'-'.$row['id'];
 
-            $row['type'] ??= '';
+            if ($kind !== 'property') {
+                $row['type'] ??= '';
 
-            return $row;
+                return $row;
+            }
+
+            $type = self::demoType((string) ($row['title'] ?? ''));
+
+            return $row + [
+                'type' => $type,
+                'category' => in_array($type, Property::COMMERCIAL_TYPES, true) ? 'commercial' : 'residential',
+                'priceAmount' => (int) preg_replace('/\D/', '', (string) ($row['price'] ?? '')),
+                'featured' => false,
+                'finishing' => '',
+                'developer' => '',
+            ];
         }, $rows);
+    }
+
+    /** نوع الوحدة التجريبية من عنوانها — نفس منطق CatalogSeeder::guessType */
+    private static function demoType(string $title): string
+    {
+        foreach (array_keys(Property::TYPES) as $type) {
+            if (str_contains($title, $type)) {
+                return $type;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * فلترة الوحدات التجريبية بنفس منطق الاستعلام الحقيقي.
+     *
+     * من غيرها /properties/commercial على تثبيت جديد كان بيعرض الوحدات
+     * السكنية تحت عنوان «عقارات تجارية» — الصفحة بتكدب على الزائر.
+     */
+    private static function filterDemoProperties(array $rows, array $filters): array
+    {
+        $category = $filters['category'] ?? '';
+        $purpose = $filters['purpose'] ?? '';
+        $type = trim((string) ($filters['type'] ?? ''));
+        $q = trim((string) ($filters['q'] ?? ''));
+        $location = trim((string) ($filters['location'] ?? ''));
+
+        // الفلتر جاي بالعربي أو بالإنجليزي، والمخزّن عربي دايمًا
+        if ($type !== '' && ! isset(Property::TYPES[$type])) {
+            $type = array_flip(Property::TYPES)[$type] ?? $type;
+        }
+
+        $rows = array_values(array_filter($rows, function (array $row) use ($category, $purpose, $type, $q, $location, $filters) {
+            if ($category !== '' && ($row['category'] ?? '') !== $category) {
+                return false;
+            }
+
+            // الغرض متخزّن في الديمو كنص معروض («بيع» / «Rent») مش كمفتاح
+            if ($purpose !== '') {
+                $label = (string) ($row['purpose'] ?? '');
+                $isRent = $label === 'إيجار' || strcasecmp($label, 'Rent') === 0;
+
+                if (($purpose === 'rent') !== $isRent) {
+                    return false;
+                }
+            }
+
+            if ($type !== '' && ($row['type'] ?? '') !== $type) {
+                return false;
+            }
+
+            if ($location !== '' && ($row['area'] ?? '') !== $location) {
+                return false;
+            }
+
+            if ($q !== '' && ! Str::contains((string) ($row['title'] ?? '').' '.($row['area'] ?? '').' '.($row['ref'] ?? ''), $q, true)) {
+                return false;
+            }
+
+            foreach ([['price_min', 'price_max', 'priceAmount'], ['area_min', 'area_max', 'size']] as [$minKey, $maxKey, $column]) {
+                $value = (int) ($row[$column] ?? 0);
+
+                if ((($min = (int) ($filters[$minKey] ?? 0)) && $value < $min)
+                    || (($max = (int) ($filters[$maxKey] ?? 0)) && $value > $max)) {
+                    return false;
+                }
+            }
+
+            foreach (['beds', 'baths'] as $column) {
+                if (($min = (int) ($filters[$column] ?? 0)) && (int) ($row[$column] ?? 0) < $min) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
+
+        return self::sortDemoProperties($rows, (string) ($filters['sort'] ?? ''));
+    }
+
+    /** ترتيب الوحدات التجريبية — نفس مفاتيح SORTS */
+    private static function sortDemoProperties(array $rows, string $sort): array
+    {
+        $by = fn (string $column, bool $desc) => function (array $a, array $b) use ($column, $desc) {
+            $diff = ((int) ($a[$column] ?? 0)) <=> ((int) ($b[$column] ?? 0));
+
+            return $desc ? -$diff : $diff;
+        };
+
+        match ($sort) {
+            'oldest' => usort($rows, $by('id', false)),
+            'price_asc' => usort($rows, $by('priceAmount', false)),
+            'price_desc' => usort($rows, $by('priceAmount', true)),
+            'area_asc' => usort($rows, $by('size', false)),
+            'area_desc' => usort($rows, $by('size', true)),
+            default => null,
+        };
+
+        return $rows;
     }
 
     /** خيارات البحث في الهيرو — الأنواع ثابتة والمناطق من الجدول */

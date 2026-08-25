@@ -9,6 +9,7 @@ use App\Support\Sluggable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Modules\Developers\Models\Developer;
@@ -27,12 +28,19 @@ use Modules\Properties\Models\Property;
  * @property string|null $description_en
  * @property string|null $features
  * @property string|null $features_en
+ * @property string|null $faqs
+ * @property string|null $faqs_en
  * @property string|null $starting_price
+ * @property string|null $resale_price
  * @property string|null $down_payment
  * @property string|null $installment_years
  * @property string|null $installment_years_en
  * @property string|null $delivery
  * @property string|null $image
+ * @property string|null $master_plan_image
+ * @property string|null $brochure_path
+ * @property string|null $latitude
+ * @property string|null $longitude
  * @property string|null $gallery
  * @property bool $is_new
  * @property int $sort
@@ -50,9 +58,10 @@ class Compound extends Model
 
     protected $fillable = [
         'name', 'name_en', 'slug', 'developer_id', 'owner_id', 'location_id', 'description', 'description_en',
-        'features', 'features_en',
-        'starting_price', 'down_payment', 'installment_years', 'installment_years_en',
-        'delivery', 'image', 'gallery', 'is_new', 'sort', 'is_active',
+        'features', 'features_en', 'faqs', 'faqs_en',
+        'starting_price', 'resale_price', 'down_payment', 'installment_years', 'installment_years_en',
+        'delivery', 'image', 'master_plan_image', 'brochure_path', 'latitude', 'longitude',
+        'gallery', 'is_new', 'sort', 'is_active',
     ];
 
     protected $casts = ['is_new' => 'boolean', 'is_active' => 'boolean', 'sort' => 'integer'];
@@ -83,6 +92,12 @@ class Compound extends Model
         return $this->hasMany(Property::class);
     }
 
+    /** المفضّلة — «احفظ المشروع» زي مفضّلة الوحدات بالظبط */
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'compound_favorites')->withTimestamps();
+    }
+
     /** نفس شكل الـ props اللي الفرونت متوقعه */
     public function toCard(string $locale): array
     {
@@ -91,9 +106,15 @@ class Compound extends Model
             'slug' => $this->slug ?? '',
             'name' => $this->t('name', $locale),
             'developer' => $this->developer?->t('name', $locale) ?? '',
+            // السلَج جنب الاسم عشان الكارت يقدر يوصّل لصفحة المطوّر والمنطقة
+            // بدل ما الاسمين يفضلوا نص ميت
+            'developerSlug' => $this->developer?->slug ?? '',
+            'developerLogo' => $this->developer?->logo ?? '',
             'area' => $this->location?->t('name', $locale) ?? '',
+            'areaSlug' => $this->location?->slug ?? '',
             'desc' => $this->t('description', $locale) ?? '',
             'starting' => $this->starting_price ?? '',
+            'resale' => $this->resale_price ?? '',
             'down' => $this->down_payment ?? '',
             'years' => $this->t('installment_years', $locale) ?? '',
             'delivery' => $this->delivery ?? '',
@@ -102,7 +123,7 @@ class Compound extends Model
         ];
     }
 
-    /** بيانات صفحة الكمبوند — الكارت + المميزات والمعرض */
+    /** بيانات صفحة الكمبوند — الكارت + المميزات والمعرض والخريطة والأسئلة */
     public function toDetail(string $locale): array
     {
         $main = $this->image ?: '/images/demo/compound-1.jpg';
@@ -110,6 +131,33 @@ class Compound extends Model
         return $this->toCard($locale) + [
             'features' => $this->tLines('features', $locale),
             'gallery' => array_values(array_unique([$main, ...self::lines($this->gallery)])),
+            'masterPlan' => $this->master_plan_image ?: '',
+            'brochure' => $this->brochure_path ?: '',
+            'lat' => $this->latitude !== null ? (float) $this->latitude : null,
+            'lng' => $this->longitude !== null ? (float) $this->longitude : null,
+            'faqs' => $this->faqList($locale),
+            'units' => $this->properties()->published()->count(),
         ];
+    }
+
+    /**
+     * الأسئلة الشائعة — سطر لكل سؤال بصيغة «السؤال | الإجابة».
+     * السطر اللي مفيهوش فاصل بيتشال بدل ما يطلع سؤال بلا إجابة.
+     *
+     * @return list<array{q: string, a: string}>
+     */
+    public function faqList(string $locale): array
+    {
+        $out = [];
+
+        foreach ($this->tLines('faqs', $locale) as $line) {
+            [$question, $answer] = array_pad(explode('|', $line, 2), 2, '');
+
+            if (trim($question) !== '' && trim($answer) !== '') {
+                $out[] = ['q' => trim($question), 'a' => trim($answer)];
+            }
+        }
+
+        return $out;
     }
 }

@@ -11,6 +11,8 @@ use Modules\Core\Http\Controllers\AccountAuthController;
 use Modules\Core\Http\Controllers\AccountController;
 use Modules\Core\Http\Controllers\FavoriteController;
 use Modules\Core\Http\Controllers\PasswordResetController;
+use Modules\Compounds\Http\Controllers\BrochureController;
+use Modules\Compounds\Http\Controllers\CompoundFavoriteController;
 use Modules\Developers\Http\Controllers\DeveloperPageController;
 use Modules\Leads\Http\Controllers\LeadController;
 use Modules\Locations\Http\Controllers\LocationPageController;
@@ -36,10 +38,16 @@ Route::prefix('{locale}')
 
         Route::get('/', fn (string $locale) => Inertia::render('Site/Home', [
             'latestProperties' => Catalog::properties($locale, 6),
-            'latestCompounds' => Catalog::compounds($locale, 3),
-            'areas' => Catalog::areas($locale, 3),
+            'latestCompounds' => Catalog::compounds($locale, 6),
+            // «أحدث المشروعات» غير «أفضل الكمبوندات»: دي الإطلاقات الجديدة
+            'newCompounds' => Catalog::compounds($locale, 8, ['new' => '1']),
+            'areas' => Catalog::areas($locale, 8),
+            'developers' => Catalog::developers($locale, 12),
+            'saleTypes' => Catalog::typeCards($locale, 'sale'),
+            'rentTypes' => Catalog::typeCards($locale, 'rent'),
             'searchOptions' => Catalog::searchOptions($locale),
             'ads' => AdSlot::at('hero', $locale, 3),
+            'spotlight' => AdSlot::at('spotlight', $locale, 1)[0] ?? null,
             'recentlyViewed' => Catalog::recentlyViewed($locale),
             'reviews' => Catalog::reviews($locale, 6),
             'meta' => Seo::page($locale, ''),
@@ -104,12 +112,13 @@ Route::prefix('{locale}')
             ]);
         })->name('compounds');
 
-        Route::get('/compounds/{slug}', function (string $locale, string $slug) {
+        Route::get('/compounds/{slug}', function (Request $request, string $locale, string $slug) {
             $compound = Catalog::compound($locale, $slug);
 
             abort_if(! $compound, 404);
 
             $crumb = $locale === 'en' ? 'Compounds' : 'الكمبوندات';
+            $filters = Catalog::filters($request);
 
             $summary = $compound['desc'] ?: ($locale === 'en'
                 ? trim("{$compound['name']} by {$compound['developer']} in {$compound['area']} — from {$compound['starting']}, {$compound['down']} down, {$compound['years']}.")
@@ -117,7 +126,11 @@ Route::prefix('{locale}')
 
             return Inertia::render('Site/Compound', [
                 'compound' => $compound,
-                'units' => Catalog::compoundUnits($locale, $compound['id']),
+                'units' => Catalog::compoundUnits($locale, $compound['id'], null, $filters),
+                'filters' => $filters,
+                'options' => Catalog::searchOptions($locale),
+                'sameDeveloper' => Catalog::developerCompounds($locale, $compound['developerId'] ?? null, $compound['id']),
+                'nearby' => Catalog::nearbyCompounds($locale, $compound['locationId'] ?? null, $compound['id']),
                 'meta' => Seo::page(
                     $locale,
                     $compound['name'],
@@ -248,6 +261,9 @@ Route::prefix('{locale}')
             Route::post('favorites/{property}', [FavoriteController::class, 'toggle'])
                 ->whereNumber('property')->name('account.favorites.toggle');
 
+            Route::post('compound-favorites/{compound}', [CompoundFavoriteController::class, 'toggle'])
+                ->whereNumber('compound')->name('account.compound-favorites.toggle');
+
             /* ---------- قيّم تجربتك ---------- */
             // رأي واحد للحساب — الحفظ بيعدّل الموجود مش بيضيف تاني
             Route::get('account/review', [AccountReviewController::class, 'edit'])->name('account.review');
@@ -279,6 +295,12 @@ Route::prefix('{locale}')
         Route::post('/leads', [LeadController::class, 'store'])
             ->middleware('throttle:8,1')
             ->name('leads.store');
+
+        // البروشور: الزائر بيسيب بياناته الأول، والرد بيرجّع رابط الملف
+        Route::post('/brochure/{compound}', BrochureController::class)
+            ->whereNumber('compound')
+            ->middleware('throttle:8,1')
+            ->name('brochure.request');
 
         /* ---------- صفحات المحتوى — لازم تفضل آخر حاجة هنا ----------
          | `/{locale}/{slug}` بيلقط أي مقطع واحد، فأي راوت بيتضاف تحته

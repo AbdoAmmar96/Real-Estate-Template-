@@ -54,6 +54,7 @@ class Lead extends Model
         'hero' => 'بحث الصفحة الرئيسية',
         'property' => 'صفحة وحدة',
         'compound' => 'صفحة مشروع',
+        'brochure' => 'طلب بروشور',
         'whatsapp' => 'واتساب',
         'phone' => 'مكالمة',
         'listing' => 'أضف عقارك',

@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
                     'can' => $request->user()->getAllPermissions()->pluck('name')->all(),
                     'staff' => $request->user()->isStaff(),
                     'favorites' => $request->user()->favorites()->pluck('properties.id')->all(),
+                    'savedCompounds' => $request->user()->favoriteCompounds()->pluck('compounds.id')->all(),
                 ] : null,
             ],
 

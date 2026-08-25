@@ -292,7 +292,10 @@ export default function Home({
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {areas.map((a, i) => (
                             <Reveal key={a.id} delay={i * 110}>
-                                <article className="group relative h-64 overflow-hidden rounded-3xl border border-gray-100 bg-bg transition duration-200 hover:-translate-y-1 hover:border-primary/50">
+                                <Link
+                                    href={a.url ?? `/${locale}/areas`}
+                                    className="group relative block h-64 overflow-hidden rounded-3xl border border-gray-100 bg-bg transition duration-200 hover:-translate-y-1 hover:border-primary/50"
+                                >
                                     <img
                                         src={a.image}
                                         alt={a.name}
@@ -306,7 +309,7 @@ export default function Home({
                                         </span>
                                         <span className="shrink-0 text-lg font-extrabold text-primary">{a.count}</span>
                                     </div>
-                                </article>
+                                </Link>
                             </Reveal>
                         ))}
                     </div>

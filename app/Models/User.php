@@ -101,6 +101,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Property::class, 'favorites')->withTimestamps();
     }
 
+    /** المشاريع المحفوظة — «احفظ» على صفحة الكمبوند */
+    public function favoriteCompounds(): BelongsToMany
+    {
+        return $this->belongsToMany(Compound::class, 'compound_favorites')->withTimestamps();
+    }
+
     /**
      * بيفتح لوحة التحكم؟
      *

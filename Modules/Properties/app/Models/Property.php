@@ -401,6 +401,8 @@ class Property extends Model
             // نفس fallback المطوّر: الوحدة جوه مشروع بتورّث منطقته لو مش متكتبة عليها،
             // عشان اللي البحث بيلاقيه يبان على الكارت
             'area' => ($this->location ?? $this->compound?->location)?->t('name', $locale) ?? '',
+            // السلَج جنب الاسم عشان المنطقة والمطوّر يبقوا لينكات مش نص ميت
+            'areaSlug' => ($this->location ?? $this->compound?->location)?->slug ?? '',
             'purpose' => $this->purpose === 'rent' ? ($ar ? 'إيجار' : 'Rent') : ($ar ? 'بيع' : 'Sale'),
             'type' => $this->typeLabel($locale),
             'category' => $this->category(),
@@ -414,6 +416,7 @@ class Property extends Model
             'ref' => $this->ref ?? '',
             'image' => $this->image ?: '/images/demo/property-1.jpg',
             'developer' => $this->resolvedDeveloper()?->t('name', $locale) ?? '',
+            'developerSlug' => $this->resolvedDeveloper()?->slug ?? '',
         ];
     }
 

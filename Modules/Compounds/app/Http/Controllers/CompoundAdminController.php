@@ -65,13 +65,20 @@ class CompoundAdminController extends ResourceController
             ['name' => 'description_en', 'label' => 'الوصف (إنجليزي)',   'type' => 'textarea'],
             ['name' => 'features',       'label' => 'المميزات (عربي)',   'type' => 'textarea', 'hint' => 'ميزة في كل سطر'],
             ['name' => 'features_en',    'label' => 'المميزات (إنجليزي)', 'type' => 'textarea', 'hint' => 'ميزة في كل سطر'],
-            ['name' => 'starting_price', 'label' => 'يبدأ من',           'type' => 'text', 'hint' => 'مثال: EGP 5,400,000'],
+            ['name' => 'faqs',           'label' => 'الأسئلة الشائعة (عربي)',    'type' => 'textarea', 'hint' => 'سؤال في كل سطر بالشكل: السؤال | الإجابة'],
+            ['name' => 'faqs_en',        'label' => 'الأسئلة الشائعة (إنجليزي)', 'type' => 'textarea', 'hint' => 'Question | Answer — one per line'],
+            ['name' => 'starting_price', 'label' => 'سعر المطوّر يبدأ من', 'type' => 'text', 'hint' => 'مثال: EGP 5,400,000'],
+            ['name' => 'resale_price',   'label' => 'سعر الريسيل يبدأ من', 'type' => 'text', 'hint' => 'اتركه فارغًا لو مفيش ريسيل معروض'],
             ['name' => 'down_payment',   'label' => 'المقدم',            'type' => 'text', 'hint' => 'مثال: 5%'],
             ['name' => 'installment_years',    'label' => 'التقسيط (عربي)',    'type' => 'text', 'hint' => 'مثال: 8 سنوات'],
             ['name' => 'installment_years_en', 'label' => 'التقسيط (إنجليزي)', 'type' => 'text'],
             ['name' => 'delivery',       'label' => 'التسليم',           'type' => 'text', 'hint' => 'مثال: Q4 2027'],
             ['name' => 'image',          'label' => 'الصورة الرئيسية',   'type' => 'image'],
             ['name' => 'gallery',        'label' => 'صور إضافية',        'type' => 'gallery'],
+            ['name' => 'master_plan_image', 'label' => 'المخطط العام (الماستر بلان)', 'type' => 'image'],
+            ['name' => 'brochure_path',  'label' => 'ملف البروشور',      'type' => 'image', 'hint' => 'ارفع ملف PDF — الزائر بيحمّله بعد ما يسيب بياناته'],
+            ['name' => 'latitude',       'label' => 'خط العرض (Latitude)',  'type' => 'text', 'hint' => 'من جوجل مابس — مثال: 30.0131'],
+            ['name' => 'longitude',      'label' => 'خط الطول (Longitude)', 'type' => 'text', 'hint' => 'مثال: 31.4969 — الخريطة بتختفي لو الاتنين فاضيين'],
             ['name' => 'is_new',         'label' => 'إطلاق جديد',        'type' => 'toggle'],
             ['name' => 'sort',           'label' => 'الترتيب',           'type' => 'number'],
             ['name' => 'is_active',      'label' => 'مفعّل',             'type' => 'toggle'],
@@ -87,7 +94,13 @@ class CompoundAdminController extends ResourceController
             'slug' => ['nullable', 'string', 'max:180', 'regex:/^[\\p{L}\\p{N}-]+$/u', Rule::unique('compounds', 'slug')->ignore($id)],
             'features' => ['nullable', 'string', 'max:3000'],
             'features_en' => ['nullable', 'string', 'max:3000'],
+            'faqs' => ['nullable', 'string', 'max:6000'],
+            'faqs_en' => ['nullable', 'string', 'max:6000'],
             'gallery' => ['nullable', 'string', 'max:3000'],
+            // الإحداثيات نص في الفورم — بيتحقق إنها رقم في المدى الصحيح
+            // عشان خريطة بإحداثية غلط بتوديّ الزائر لنص المحيط
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ];
     }
 

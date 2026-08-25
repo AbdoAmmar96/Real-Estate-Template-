@@ -145,6 +145,79 @@ class DemoContent
                 'ref' => 'XH-1013',
                 'image' => '/images/demo/property-4.jpg',
             ],
+            // ---------- إيجارات بأنواع متنوّعة ----------
+            // قسم «عقارات للإيجار حسب نوع الوحدة» بيعرض الأنواع اللي عليها
+            // وحدات فعلًا، فالتنوّع هنا هو اللي بيملا القسم
+            [
+                'id' => 14,
+                'title' => $ar ? 'فيلا 380م للإيجار بحديقة خاصة' : 'Villa 380m for rent with a private garden',
+                'area' => $ar ? 'القاهرة الجديدة' : 'New Cairo',
+                'purpose' => $ar ? 'إيجار' : 'Rent',
+                'price' => $ar ? 'EGP 120,000 / شهريًا' : 'EGP 120,000 / mo',
+                'beds' => 5, 'baths' => 4, 'size' => 380,
+                'ref' => 'XH-1014',
+                'image' => '/images/demo/property-2.jpg',
+            ],
+            [
+                'id' => 15,
+                'title' => $ar ? 'تاون هاوس 240م للإيجار متشطّب' : 'Townhouse 240m for rent, finished',
+                'area' => $ar ? 'العاصمة الإدارية' : 'New Capital',
+                'purpose' => $ar ? 'إيجار' : 'Rent',
+                'price' => $ar ? 'EGP 65,000 / شهريًا' : 'EGP 65,000 / mo',
+                'beds' => 4, 'baths' => 3, 'size' => 240,
+                'ref' => 'XH-1015',
+                'image' => '/images/demo/property-5.jpg',
+            ],
+            [
+                'id' => 16,
+                'title' => $ar ? 'بنتهاوس 200م للإيجار بروف خاص' : 'Penthouse 200m for rent with a private roof',
+                'area' => $ar ? 'القاهرة الجديدة' : 'New Cairo',
+                'purpose' => $ar ? 'إيجار' : 'Rent',
+                'price' => $ar ? 'EGP 72,000 / شهريًا' : 'EGP 72,000 / mo',
+                'beds' => 3, 'baths' => 3, 'size' => 200,
+                'ref' => 'XH-1016',
+                'image' => '/images/demo/property-7.jpg',
+            ],
+            [
+                'id' => 17,
+                'title' => $ar ? 'دوبلكس 210م للإيجار مفروش' : 'Duplex 210m for rent, furnished',
+                'area' => $ar ? 'الإسكندرية' : 'Alexandria',
+                'purpose' => $ar ? 'إيجار' : 'Rent',
+                'price' => $ar ? 'EGP 45,000 / شهريًا' : 'EGP 45,000 / mo',
+                'beds' => 3, 'baths' => 2, 'size' => 210,
+                'ref' => 'XH-1017',
+                'image' => '/images/demo/property-1.jpg',
+            ],
+            [
+                'id' => 18,
+                'title' => $ar ? 'شاليه 110م للإيجار بإطلالة بحرية' : 'Chalet 110m for rent with a sea view',
+                'area' => $ar ? 'الإسكندرية' : 'Alexandria',
+                'purpose' => $ar ? 'إيجار' : 'Rent',
+                'price' => $ar ? 'EGP 30,000 / شهريًا' : 'EGP 30,000 / mo',
+                'beds' => 2, 'baths' => 2, 'size' => 110,
+                'ref' => 'XH-1018',
+                'image' => '/images/demo/property-3.jpg',
+            ],
+            [
+                'id' => 19,
+                'title' => $ar ? 'شاليه 130م للبيع أول صف على البحر' : 'Chalet 130m for sale, first row on the sea',
+                'area' => $ar ? 'الإسكندرية' : 'Alexandria',
+                'purpose' => $ar ? 'بيع' : 'Sale',
+                'price' => 'EGP 6,900,000',
+                'beds' => 2, 'baths' => 2, 'size' => 130,
+                'ref' => 'XH-1019',
+                'image' => '/images/demo/property-8.jpg',
+            ],
+            [
+                'id' => 20,
+                'title' => $ar ? 'تاون هاوس 265م للبيع بحديقة' : 'Townhouse 265m for sale with a garden',
+                'area' => $ar ? 'القاهرة الجديدة' : 'New Cairo',
+                'purpose' => $ar ? 'بيع' : 'Sale',
+                'price' => 'EGP 11,200,000',
+                'beds' => 4, 'baths' => 4, 'size' => 265,
+                'ref' => 'XH-1020',
+                'image' => '/images/demo/property-9.jpg',
+            ],
         ];
     }
 
@@ -169,6 +242,13 @@ class DemoContent
             'XH-1011' => ['full',      'الثاني', null,   860000,   0,        0,    false, false, false, false],
             'XH-1012' => ['full',      'السادس', null,   0,        0,        0,    false, false, false, false],
             'XH-1013' => ['none',      'أرضي',   null,   0,        0,        0,    false, false, false, false],
+            'XH-1014' => ['full',      'فيلا',   null,   0,        0,        0,    true,  false, true,  true],
+            'XH-1015' => ['full',      'دورين',  null,   0,        0,        0,    true,  false, false, false],
+            'XH-1016' => ['furnished', 'الأخير', null,   0,        0,        0,    false, true,  true,  false],
+            'XH-1017' => ['furnished', 'الثالث', null,   0,        0,        0,    false, false, true,  false],
+            'XH-1018' => ['furnished', 'الأول',  null,   0,        0,        0,    false, false, false, false],
+            'XH-1019' => ['full',      'أرضي',   2027,   1380000,  0,        0,    true,  false, false, true],
+            'XH-1020' => ['semi',      'دورين',  2027,   2240000,  62000,    7,    true,  true,  true,  false],
         ];
     }
 
@@ -405,8 +485,46 @@ class DemoContent
             ['/images/demo/compound-3.jpg', '/images/demo/property-5.jpg'],
         ];
 
+        // سؤال في كل سطر بصيغة «السؤال | الإجابة» — نفس اللي الأدمن بيكتبه
+        $faqs = $ar
+            ? [
+                "ما هي مساحات الوحدات في المشروع؟ | تبدأ المساحات من 120 م² للشقق وتصل إلى 420 م² للفيلات المستقلة.\nهل الوحدات متاحة بالتقسيط؟ | نعم، بمقدم يبدأ من 5% وتقسيط يصل إلى 8 سنوات على حسب نوع الوحدة.\nمتى موعد التسليم؟ | التسليم موثّق في العقد، ومواعيده معروضة في بطاقة نظام السداد أعلى الصفحة.\nهل يمكن معاينة الوحدة قبل الشراء؟ | نعم، نرتّب لك زيارة للموقع خلال 48 ساعة من طلبك.",
+                "هل المشروع على البحر مباشرة؟ | نعم، الواجهة البحرية تمتد 800 متر مع بيتش باي خاص للسكان.\nهل تُدار الوحدات فندقيًا؟ | نعم، هناك نظام إدارة فندقية اختياري للوحدات المخصصة للتأجير.\nما نظام السداد المتاح؟ | مقدم يبدأ من 10% وتقسيط حتى 7 سنوات.",
+                "هل التراخيص مكتملة؟ | نعم، الأبراج الإدارية والتجارية مرخّصة بالكامل والأوراق متاحة للمراجعة.\nهل يوجد جراج؟ | نعم، جراجات متعددة الأدوار مخصصة للمكاتب والمحلات.\nهل المشروع مناسب للاستثمار؟ | نعم، الموقع على المحور الرئيسي يجعله من أعلى المناطق طلبًا للتأجير الإداري.",
+                "ما كثافة البناء في المشروع؟ | كثافة منخفضة، ما يعني مساحات خضراء أوسع وخصوصية أعلى للوحدات.\nهل توجد خدمات داخل الكمبوند؟ | نعم، نادٍ رياضي وسبا ومنطقة أطفال ومنطقة تجارية.\nهل يمكن التعديل على التشطيب؟ | نعم، هناك خيارات تشطيب متعددة تُحدَّد قبل التعاقد.",
+                "هل توجد وحدات بإطلالة بحرية مباشرة؟ | نعم، عدد من الوحدات على البروموناد بإطلالة مباشرة.\nهل يوجد مارينا لليخوت؟ | نعم، مارينا مخصصة داخل المشروع.\nما نظام السداد؟ | مقدم يبدأ من 10% وتقسيط حتى 6 سنوات.",
+                "ما نسبة المساحات الخضراء؟ | المساحات الخضراء تغطي أغلب مساحة المشروع.\nهل توجد مواقف للزوار؟ | نعم، مواقف مخصصة للزوار عند كل مدخل.\nهل المداخل مؤمّنة؟ | نعم، جميع المداخل مؤمّنة على مدار الساعة.",
+            ]
+            : [
+                "What unit sizes are available? | Sizes start at 120 m² for apartments and go up to 420 m² for standalone villas.\nAre instalment plans available? | Yes — from 5% down with instalments up to 8 years depending on the unit type.\nWhen is delivery? | Delivery is documented in the contract; the dates are shown in the payment-plan card above.\nCan I view a unit before buying? | Yes, we arrange a site visit within 48 hours of your request.",
+                "Is the project directly on the sea? | Yes — an 800m seafront with a private beach bay for residents.\nAre units hotel-managed? | Yes, an optional hotel-management scheme is available for rental units.\nWhat is the payment plan? | From 10% down with instalments up to 7 years.",
+                "Are the licences complete? | Yes — the administrative and retail towers are fully licensed and the paperwork is available for review.\nIs parking available? | Yes, multi-storey parking dedicated to offices and shops.\nIs it suitable for investment? | Yes — its location on the main axis makes it one of the highest-demand office rental areas.",
+                "What is the building density? | Low density, meaning wider green areas and more privacy per unit.\nAre there services inside the compound? | Yes — a gym, spa, kids' area and a retail zone.\nCan the finishing be changed? | Yes, several finishing options are agreed before contracting.",
+                "Are there units with direct sea views? | Yes, a number of units on the promenade have direct views.\nIs there a yacht marina? | Yes, a dedicated marina inside the project.\nWhat is the payment plan? | From 10% down with instalments up to 6 years.",
+                "How much green space is there? | Green areas cover most of the project.\nIs there visitor parking? | Yes, dedicated visitor parking at every gate.\nAre the gates secured? | Yes, all gates are secured around the clock.",
+            ];
+
+        // إحداثيات حقيقية للمناطق اللي المشاريع التجريبية فيها،
+        // عشان الخريطة تفتح على مكان معقول مش وسط البحر
+        $coords = [
+            [30.0131, 31.4969], [31.0409, 28.7660], [30.0290, 31.7420],
+            [30.0570, 31.4910], [31.2001, 29.9187], [30.0080, 31.4310],
+        ];
+
+        $resale = $ar
+            ? ['EGP 5,900,000', 'EGP 8,100,000', '', 'EGP 4,600,000', 'EGP 7,200,000', '']
+            : ['EGP 5,900,000', 'EGP 8,100,000', '', 'EGP 4,600,000', 'EGP 7,200,000', ''];
+
         return array_map(
-            fn ($i) => ['features' => $sets[$i], 'gallery' => $galleries[$i]],
+            fn ($i) => [
+                'features' => $sets[$i],
+                'gallery' => $galleries[$i],
+                'faqs' => $faqs[$i] ?? '',
+                'masterPlan' => '/images/demo/compound-'.(($i % 3) + 1).'.jpg',
+                'lat' => $coords[$i][0] ?? null,
+                'lng' => $coords[$i][1] ?? null,
+                'resale' => $resale[$i] ?? '',
+            ],
             array_keys($sets),
         );
     }
